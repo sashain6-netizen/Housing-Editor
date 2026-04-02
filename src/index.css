@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure full height for body and root */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* React Flow customizations */
+.react-flow {
+  @apply bg-slate-900;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Selection highlight for nodes */
+.react-flow__node.selected {
+  @apply ring-2 ring-yellow-400;
+}
+
+/* Edge styling */
+.react-flow__edge {
+  stroke-width: 2;
+}
+
+.react-flow__edge.selected {
+  @apply stroke-yellow-400;
+}
+
+/* Handle styling */
+.react-flow__handle {
+  @apply bg-slate-400;
+}
+
+.react-flow__handle.connectable {
+  @apply cursor-grab active:cursor-grabbing;
+}
+
+/* Mini map styling */
+.react-flow__minimap {
+  @apply bg-slate-800 border border-slate-700;
+}
+
+/* Controls styling */
+.react-flow__controls {
+  @apply bg-slate-800 border border-slate-700;
+}
+
+.react-flow__controls button {
+  @apply bg-slate-700 hover:bg-slate-600 text-slate-100 border-slate-600;
+}
