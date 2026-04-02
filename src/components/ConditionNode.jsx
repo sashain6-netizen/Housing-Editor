@@ -3,131 +3,153 @@ import { Handle, Position } from "reactflow";
 
 /**
  * Condition Node - Decision points in HTSL execution
+ * Orange themed - Unreal Blueprint style
  * Supports: StatCheck, ItemCheck, TimeCheck
- * Has two output paths: "True" and "False"
+ * Two output paths: True (green) and False (red)
  */
 const ConditionNode = memo(({ data, isConnecting }) => {
   const conditionTypes = ["StatCheck", "ItemCheck", "TimeCheck"];
-
-  const conditionType = data.conditionType || "StatCheck";
   const operators = [">=", "<=", "==", "!=", ">", "<"];
+  const conditionType = data.conditionType || "StatCheck";
 
   return (
-    <div className="px-4 py-3 shadow-lg rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 text-white border-2 border-purple-700 min-w-[180px]">
-      <div className="font-bold text-sm mb-2">🔀 Condition</div>
-
+    <div className="node-condition p-0 rounded-lg min-w-[240px] shadow-xl">
       {/* Input handle */}
       <Handle
         type="target"
         position={Position.Top}
         id="in"
-        className="w-3 h-3"
+        className="bg-orange-400 border-2 border-orange-900"
       />
 
-      {/* Condition Type Selector */}
-      <div className="mb-3">
-        <label className="text-xs font-semibold block mb-1">Type:</label>
-        <select
-          value={conditionType}
-          onChange={(e) =>
-            data.onUpdate?.({ ...data, conditionType: e.target.value })
-          }
-          className="w-full px-2 py-1 text-xs bg-purple-700 text-white rounded border border-purple-400 focus:outline-none"
-        >
-          {conditionTypes.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
+      {/* Header */}
+      <div className="node-header">
+        <span>🔀 Condition</span>
+        <span className="text-xs opacity-70">{conditionType}</span>
       </div>
 
-      {/* Dynamic fields based on condition type */}
-      {conditionType === "StatCheck" && (
-        <>
-          <div className="mb-2">
-            <label className="text-xs font-semibold block mb-1">Stat:</label>
-            <input
-              type="text"
-              value={data.statName || "coins"}
-              onChange={(e) =>
-                data.onUpdate?.({ ...data, statName: e.target.value })
-              }
-              placeholder="e.g., coins"
-              className="w-full px-2 py-1 text-xs bg-purple-700 text-white rounded border border-purple-400 placeholder-purple-300 focus:outline-none"
-            />
-          </div>
-          <div className="mb-2 grid grid-cols-2 gap-2">
+      {/* Content */}
+      <div className="p-3 space-y-3">
+        {/* Condition Type Selector */}
+        <div>
+          <label className="text-xs font-semibold block mb-2 text-yellow-300 uppercase tracking-wide">
+            Condition Type:
+          </label>
+          <select
+            value={conditionType}
+            onChange={(e) =>
+              data.onUpdate?.({ ...data, conditionType: e.target.value })
+            }
+            className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 hover:border-orange-400/60 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
+          >
+            {conditionTypes.map((opt) => (
+              <option key={opt} value={opt} className="bg-orange-900">
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* StatCheck Fields */}
+        {conditionType === "StatCheck" && (
+          <>
             <div>
-              <label className="text-xs font-semibold block mb-1">Op:</label>
-              <select
-                value={data.operator || ">="}
+              <label className="text-xs font-semibold block mb-2 text-yellow-300 uppercase tracking-wide">
+                Stat Name:
+              </label>
+              <input
+                type="text"
+                value={data.statName || "coins"}
                 onChange={(e) =>
-                  data.onUpdate?.({ ...data, operator: e.target.value })
+                  data.onUpdate?.({ ...data, statName: e.target.value })
                 }
-                className="w-full px-2 py-1 text-xs bg-purple-700 text-white rounded border border-purple-400 focus:outline-none"
-              >
-                {operators.map((op) => (
-                  <option key={op} value={op}>
-                    {op}
-                  </option>
-                ))}
-              </select>
+                placeholder="e.g., coins, level"
+                className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 placeholder-orange-400/50 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold block mb-2 text-yellow-300 uppercase tracking-wide">
+                  Operator:
+                </label>
+                <select
+                  value={data.operator || ">="}
+                  onChange={(e) =>
+                    data.onUpdate?.({ ...data, operator: e.target.value })
+                  }
+                  className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
+                >
+                  {operators.map((op) => (
+                    <option key={op} value={op} className="bg-orange-900">
+                      {op}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-semibold block mb-2 text-yellow-300 uppercase tracking-wide">
+                  Value:
+                </label>
+                <input
+                  type="number"
+                  value={data.compareValue || 10}
+                  onChange={(e) =>
+                    data.onUpdate?.({
+                      ...data,
+                      compareValue: parseInt(e.target.value) || 10,
+                    })
+                  }
+                  className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
+                />
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ItemCheck Fields */}
+        {conditionType === "ItemCheck" && (
+          <>
+            <div>
+              <label className="text-xs font-semibold block mb-2 text-yellow-300 uppercase tracking-wide">
+                Item Name:
+              </label>
+              <input
+                type="text"
+                value={data.itemName || ""}
+                onChange={(e) =>
+                  data.onUpdate?.({ ...data, itemName: e.target.value })
+                }
+                placeholder="e.g., diamond"
+                className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 placeholder-orange-400/50 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
+              />
             </div>
             <div>
-              <label className="text-xs font-semibold block mb-1">Value:</label>
+              <label className="text-xs font-semibold block mb-2 text-yellow-300 uppercase tracking-wide">
+                Min Quantity:
+              </label>
               <input
                 type="number"
-                value={data.compareValue || 10}
+                value={data.minQuantity || 1}
                 onChange={(e) =>
                   data.onUpdate?.({
                     ...data,
-                    compareValue: parseInt(e.target.value) || 10,
+                    minQuantity: Math.max(1, parseInt(e.target.value)) || 1,
                   })
                 }
-                className="w-full px-2 py-1 text-xs bg-purple-700 text-white rounded border border-purple-400 focus:outline-none"
+                min="1"
+                className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
               />
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
 
-      {conditionType === "ItemCheck" && (
-        <>
-          <div className="mb-2">
-            <label className="text-xs font-semibold block mb-1">Item:</label>
-            <input
-              type="text"
-              value={data.itemName || ""}
-              onChange={(e) =>
-                data.onUpdate?.({ ...data, itemName: e.target.value })
-              }
-              placeholder="e.g., Diamond"
-              className="w-full px-2 py-1 text-xs bg-purple-700 text-white rounded border border-purple-400 placeholder-purple-300 focus:outline-none"
-            />
-          </div>
-          <div className="mb-3">
-            <label className="text-xs font-semibold block mb-1">Min Qty:</label>
-            <input
-              type="number"
-              value={data.minQuantity || 1}
-              onChange={(e) =>
-                data.onUpdate?.({
-                  ...data,
-                  minQuantity: parseInt(e.target.value) || 1,
-                })
-              }
-              className="w-full px-2 py-1 text-xs bg-purple-700 text-white rounded border border-purple-400 focus:outline-none"
-            />
-          </div>
-        </>
-      )}
-
-      {conditionType === "TimeCheck" && (
-        <>
-          <div className="mb-2 grid grid-cols-2 gap-2">
+        {/* TimeCheck Fields */}
+        {conditionType === "TimeCheck" && (
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold block mb-1">Hour:</label>
+              <label className="text-xs font-semibold block mb-2 text-yellow-300 uppercase tracking-wide">
+                Hour (0-23):
+              </label>
               <input
                 type="number"
                 min="0"
@@ -139,11 +161,13 @@ const ConditionNode = memo(({ data, isConnecting }) => {
                     hour: parseInt(e.target.value) || 12,
                   })
                 }
-                className="w-full px-2 py-1 text-xs bg-purple-700 text-white rounded border border-purple-400 focus:outline-none"
+                className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold block mb-1">Min:</label>
+              <label className="text-xs font-semibold block mb-2 text-yellow-300 uppercase tracking-wide">
+                Minute (0-59):
+              </label>
               <input
                 type="number"
                 min="0"
@@ -155,38 +179,42 @@ const ConditionNode = memo(({ data, isConnecting }) => {
                     minute: parseInt(e.target.value) || 0,
                   })
                 }
-                className="w-full px-2 py-1 text-xs bg-purple-700 text-white rounded border border-purple-400 focus:outline-none"
+                className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
               />
             </div>
           </div>
-        </>
-      )}
+        )}
+      </div>
 
-      {/* True path handle */}
+      {/* Output handles - True/False paths */}
+      <div className="flex justify-between px-4 py-2 border-t border-orange-500/20 text-xs font-semibold">
+        <div className="flex items-center gap-1 text-green-400">
+          <span>✓</span>
+          <span>True</span>
+        </div>
+        <div className="flex items-center gap-1 text-red-400">
+          <span>✗</span>
+          <span>False</span>
+        </div>
+      </div>
+
+      {/* True path handle (left) */}
       <Handle
         type="source"
         position={Position.Bottom}
         id="true"
-        isConnectable={true}
-        style={{ left: "33%", background: "#10b981" }}
-        className="w-3 h-3"
+        style={{ left: "30%" }}
+        className="bg-green-400 border-2 border-green-900"
       />
 
-      {/* False path handle */}
+      {/* False path handle (right) */}
       <Handle
         type="source"
         position={Position.Bottom}
         id="false"
-        isConnectable={true}
-        style={{ left: "66%", background: "#ef4444" }}
-        className="w-3 h-3"
+        style={{ left: "70%" }}
+        className="bg-red-400 border-2 border-red-900"
       />
-
-      {/* Labels for handles */}
-      <div className="flex justify-between text-xs mt-1 px-1">
-        <span className="text-green-200">✓ True</span>
-        <span className="text-red-200">✗ False</span>
-      </div>
     </div>
   );
 });

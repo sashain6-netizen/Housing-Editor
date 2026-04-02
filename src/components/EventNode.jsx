@@ -4,43 +4,56 @@ import { Handle, Position } from "reactflow";
 /**
  * Event Node - Starting points for HTSL execution
  * Represents triggers like PlayerJoin, PlayerKill, etc.
+ * Purple/Magenta themed - Unreal Blueprint style
  */
 const EventNode = memo(({ data, isConnecting }) => {
   const eventOptions = [
-    "PlayerJoin",
-    "PlayerKill",
-    "PlayerDeath",
-    "PlayerMove",
-    "BlockClick",
+    "join",
+    "quit",
+    "block_break",
+    "block_place",
+    "kill",
+    "death",
+    "chat",
+    "interact",
   ];
 
   return (
-    <div className="px-4 py-3 shadow-lg rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white border-2 border-blue-700 min-w-[160px]">
-      <div className="font-bold text-sm mb-2">📌 Event</div>
-
-      <div className="mb-3">
-        <label className="text-xs font-semibold block mb-1">Trigger:</label>
-        <select
-          value={data.eventType || "PlayerJoin"}
-          onChange={(e) =>
-            data.onUpdate?.({ ...data, eventType: e.target.value })
-          }
-          className="w-full px-2 py-1 text-xs bg-blue-700 text-white rounded border border-blue-400 focus:outline-none"
-        >
-          {eventOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
+    <div className="node-event p-0 rounded-lg min-w-[200px] shadow-xl">
+      {/* Header */}
+      <div className="node-header">
+        <span>⚡ Event</span>
+        <span className="text-xs opacity-70">{data.eventType || "select"}</span>
       </div>
 
-      {/* Output handle - connects to actions */}
+      {/* Content */}
+      <div className="p-3 space-y-3">
+        <div>
+          <label className="text-xs font-semibold block mb-2 text-purple-300 uppercase tracking-wide">
+            Event Type:
+          </label>
+          <select
+            value={data.eventType || "join"}
+            onChange={(e) =>
+              data.onUpdate?.({ ...data, eventType: e.target.value })
+            }
+            className="w-full px-3 py-2 text-xs bg-purple-900/30 text-purple-100 rounded border border-purple-500/40 hover:border-purple-400/60 focus:outline-none focus:border-purple-300 focus:ring-1 focus:ring-purple-400/50 transition-colors"
+          >
+            {eventOptions.map((opt) => (
+              <option key={opt} value={opt} className="bg-purple-900">
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Output handle */}
       <Handle
         type="source"
         position={Position.Bottom}
         id="out"
-        className="w-3 h-3"
+        className="bg-purple-400 border-2 border-purple-900"
       />
     </div>
   );

@@ -2,24 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Ensure full height for body and root */
+/* ===================================
+   Unreal Blueprint-style Theming
+   =================================== */
+
 html,
 body,
 #root {
   height: 100%;
   margin: 0;
   padding: 0;
+  background: #0a0e27;
+  color: #e4e6eb;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
 }
 
-/* React Flow customizations */
-.react-flow {
-  @apply bg-slate-900;
-}
-
-/* Scrollbar styling */
+/* Global Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -27,47 +28,313 @@ body,
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 4px;
+  background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%);
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: linear-gradient(180deg, #818cf8 0%, #6366f1 100%);
 }
 
-/* Selection highlight for nodes */
+/* ===================================
+   React Flow Customizations
+   =================================== */
+
+.react-flow {
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+  color: #e4e6eb;
+}
+
+/* Node Base Styling */
+.react-flow__node {
+  border-radius: 8px;
+  border: 2px solid rgba(100, 116, 139, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.react-flow__node:hover {
+  border-color: rgba(129, 140, 248, 0.6);
+  box-shadow: 0 12px 48px rgba(129, 140, 248, 0.2);
+  transform: translateY(-2px);
+}
+
 .react-flow__node.selected {
-  @apply ring-2 ring-yellow-400;
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2), 0 0 20px rgba(129, 140, 248, 0.4);
 }
 
-/* Edge styling */
-.react-flow__edge {
-  stroke-width: 2;
+/* Event Node (Purple) */
+.node-event {
+  border-color: rgba(139, 92, 246, 0.5) !important;
+  background: linear-gradient(135deg, rgba(88, 28, 135, 0.3), rgba(59, 22, 112, 0.3)) !important;
 }
 
-.react-flow__edge.selected {
-  @apply stroke-yellow-400;
+.node-event:hover {
+  border-color: rgba(168, 85, 247, 0.8) !important;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3) !important;
 }
 
-/* Handle styling */
+/* Action Node (Blue) */
+.node-action {
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.3), rgba(25, 45, 109, 0.3)) !important;
+}
+
+.node-action:hover {
+  border-color: rgba(96, 165, 250, 0.8) !important;
+  box-shadow: 0 0 20px rgba(96, 165, 250, 0.3) !important;
+}
+
+/* Condition Node (Orange) */
+.node-condition {
+  border-color: rgba(245, 158, 11, 0.5) !important;
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.3), rgba(92, 41, 12, 0.3)) !important;
+}
+
+.node-condition:hover {
+  border-color: rgba(251, 191, 36, 0.8) !important;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3) !important;
+}
+
+/* ===================================
+   Node Header Styling
+   =================================== */
+
+.node-header {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.3);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.node-event .node-header {
+  background: linear-gradient(90deg, rgba(168, 85, 247, 0.2), rgba(168, 85, 247, 0.05));
+  color: #d8b4fe;
+}
+
+.node-action .node-header {
+  background: linear-gradient(90deg, rgba(96, 165, 250, 0.2), rgba(96, 165, 250, 0.05));
+  color: #bfdbfe;
+}
+
+.node-condition .node-header {
+  background: linear-gradient(90deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.05));
+  color: #fde047;
+}
+
+/* ===================================
+   Handle Styling
+   =================================== */
+
 .react-flow__handle {
-  @apply bg-slate-400;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #818cf8, #6366f1);
+  border: 2px solid #1e293b;
+  transition: all 0.2s ease;
+}
+
+.react-flow__handle:hover {
+  transform: scale(1.3);
+  box-shadow: 0 0 12px rgba(129, 140, 248, 0.6);
 }
 
 .react-flow__handle.connectable {
-  @apply cursor-grab active:cursor-grabbing;
+  cursor: grab;
 }
 
-/* Mini map styling */
+.react-flow__handle.connectable:active {
+  cursor: grabbing;
+}
+
+/* ===================================
+   Edge Styling
+   =================================== */
+
+.react-flow__edge {
+  stroke-width: 2.5;
+}
+
+.react-flow__edge-path {
+  stroke: url(#gradient) !important;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.react-flow__edge.selected {
+  stroke: #a78bfa !important;
+  filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.4));
+}
+
+/* Linear Edge */
+.react-flow__edge.linear {
+  stroke: rgba(129, 140, 248, 0.5);
+}
+
+/* ===================================
+   Minimap & Controls
+   =================================== */
+
 .react-flow__minimap {
-  @apply bg-slate-800 border border-slate-700;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  border-radius: 8px;
 }
 
-/* Controls styling */
+.react-flow__minimap-mask {
+  fill: rgba(129, 140, 248, 0.1);
+  stroke: rgba(129, 140, 248, 0.5);
+  stroke-width: 2;
+}
+
 .react-flow__controls {
-  @apply bg-slate-800 border border-slate-700;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  border-radius: 8px;
+  gap: 4px;
+  padding: 8px;
 }
 
 .react-flow__controls button {
-  @apply bg-slate-700 hover:bg-slate-600 text-slate-100 border-slate-600;
+  background: rgba(71, 85, 105, 0.5);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  color: #e4e6eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.react-flow__controls button:hover {
+  background: rgba(129, 140, 248, 0.3);
+  border-color: rgba(129, 140, 248, 0.6);
+  box-shadow: 0 0 8px rgba(129, 140, 248, 0.2);
+}
+
+/* ===================================
+   Pane Styling
+   =================================== */
+
+.react-flow__pane {
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+}
+
+/* ===================================
+   Typography and Text
+   =================================== */
+
+.node-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #e4e6eb;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.node-value {
+  font-size: 11px;
+  color: #cbd5e1;
+  opacity: 0.9;
+}
+
+/* ===================================
+   Buttons
+   =================================== */
+
+button {
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #a5b4fc 0%, #818cf8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(129, 140, 248, 0.4);
+}
+
+.btn-secondary {
+  background: rgba(71, 85, 105, 0.5);
+  color: #e4e6eb;
+  border: 1px solid rgba(129, 140, 248, 0.3);
+}
+
+.btn-secondary:hover {
+  background: rgba(100, 116, 139, 0.6);
+  border-color: rgba(129, 140, 248, 0.5);
+}
+
+/* ===================================
+   Input Fields
+   =================================== */
+
+input,
+textarea {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  color: #e4e6eb;
+  border-radius: 6px;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgba(129, 140, 248, 0.6);
+  background: rgba(30, 41, 59, 0.8);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(148, 163, 184, 0.5);
+}
+
+/* ===================================
+   Animation
+   =================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(129, 140, 248, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(129, 140, 248, 0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
 }

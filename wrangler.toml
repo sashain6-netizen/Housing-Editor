@@ -1,0 +1,33 @@
+name = "housing-editor-api"
+type = "javascript"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Development Environment
+[env.development]
+vars = { ENVIRONMENT = "development" }
+
+# Production Environment
+[env.production]
+name = "housing-editor-api-prod"
+route = "api.yourhousing.com/*"
+zone_id = "your_zone_id_here"
+vars = { ENVIRONMENT = "production" }
+
+# Database Binding (D1)
+[[d1_databases]]
+binding = "DB"
+database_name = "housing-editor"
+database_id = "your_database_id_here"
+migrations_dir = "migrations"
+
+# KV Namespace Binding (Sessions/Cache)
+[[kv_namespaces]]
+binding = "KV"
+id = "your_kv_namespace_id_here"
+
+# Environment Variables (set these in Cloudflare dashboard)
+[vars]
+MAX_AUTH_TOKEN_AGE = "604800"  # 7 days in seconds
+SESSION_TIMEOUT = "2592000"     # 30 days in seconds
+API_RATE_LIMIT = "100"

@@ -6,7 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "worker:dev": "wrangler dev",
+    "worker:build": "wrangler build",
+    "worker:deploy": "wrangler deploy",
+    "worker:db:init": "wrangler d1 execute housing-editor --remote < schema.sql",
+    "worker:logs": "wrangler tail"
   },
   "dependencies": {
     "react": "^18.2.0",
