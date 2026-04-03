@@ -411,6 +411,8 @@ const handleBackToDashboard = () => {
             maxZoom={2}
             snapToGrid={true}
             snapGrid={[20, 20]}
+            onPaneClick={() => {}}
+            onNodeClick={() => {}}
             isValidConnection={(connection) => {
               const sourceNode = nodes.find(n => n.id === connection.source);
               const targetNode = nodes.find(n => n.id === connection.target);

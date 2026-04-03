@@ -158,7 +158,7 @@ export const useHousingStore = create((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axios.get(`${API_URL}/houses/${houseId}`);
-      set({ currentHouse: response.data, isLoading: false });
+      set({ currentHouse: response.data.house, isLoading: false });
       return response.data;
     } catch (error) {
       const msg = error.response?.data?.message || "Failed to fetch house";
@@ -171,8 +171,8 @@ export const useHousingStore = create((set) => ({
     try {
       const response = await axios.put(`${API_URL}/houses/${houseId}`, updates);
       set((state) => ({
-        currentHouse: response.data,
-        houses: state.houses.map((h) => (h.id === houseId ? response.data : h)),
+        currentHouse: response.data.house,
+        houses: state.houses.map((h) => (h.id === houseId ? response.data.house : h)),
       }));
       return response.data;
     } catch (error) {

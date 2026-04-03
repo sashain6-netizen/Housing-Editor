@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { Handle, Position } from "reactflow";
 
 /**
@@ -10,16 +10,24 @@ import { Handle, Position } from "reactflow";
 const ConditionNode = memo(({ data, isConnecting }) => {
   const conditionTypes = ["StatCheck", "ItemCheck", "TimeCheck"];
   const operators = [">=", "<=", "==", "!=", ">", "<"];
-  const conditionType = data.conditionType || "StatCheck";
+  const [localConditionType, setLocalConditionType] = useState(data.conditionType || "StatCheck");
 
   const handleConditionTypeChange = useCallback((e) => {
     const newConditionType = e.target.value;
+    setLocalConditionType(newConditionType);
     data.onUpdate?.({ ...data, conditionType: newConditionType });
   }, [data]);
 
   const handleFieldChange = useCallback((field, value) => {
     data.onUpdate?.({ ...data, [field]: value });
   }, [data]);
+
+  // Sync local state with prop changes
+  React.useEffect(() => {
+    if (data.conditionType !== localConditionType) {
+      setLocalConditionType(data.conditionType || "StatCheck");
+    }
+  }, [data.conditionType, localConditionType]);
 
   return (
     <div className="node-condition p-0 rounded-lg min-w-[240px] shadow-xl">
@@ -34,7 +42,7 @@ const ConditionNode = memo(({ data, isConnecting }) => {
       {/* Header */}
       <div className="node-header">
         <span>🔀 Condition</span>
-        <span className="text-xs opacity-70">{conditionType}</span>
+        <span className="text-xs opacity-70">{localConditionType}</span>
       </div>
 
       {/* Content */}
@@ -45,10 +53,12 @@ const ConditionNode = memo(({ data, isConnecting }) => {
             Condition Type:
           </label>
           <select
-            value={conditionType}
+            value={localConditionType}
             onChange={handleConditionTypeChange}
-            className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 hover:border-orange-400/60 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
             onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 hover:border-orange-400/60 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
           >
             {conditionTypes.map((opt) => (
               <option key={opt} value={opt} className="bg-orange-900">
@@ -59,7 +69,7 @@ const ConditionNode = memo(({ data, isConnecting }) => {
         </div>
 
         {/* StatCheck Fields */}
-        {conditionType === "StatCheck" && (
+        {localConditionType === "StatCheck" && (
           <>
             <div>
               <label className="text-xs font-semibold block mb-2 text-yellow-300 uppercase tracking-wide">
@@ -81,8 +91,10 @@ const ConditionNode = memo(({ data, isConnecting }) => {
                 <select
                   value={data.operator || ">="}
                   onChange={(e) => handleFieldChange("operator", e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
                   onMouseDown={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
                 >
                   {operators.map((op) => (
                     <option key={op} value={op} className="bg-orange-900">
@@ -107,7 +119,7 @@ const ConditionNode = memo(({ data, isConnecting }) => {
         )}
 
         {/* ItemCheck Fields */}
-        {conditionType === "ItemCheck" && (
+        {localConditionType === "ItemCheck" && (
           <>
             <div>
               <label className="text-xs font-semibold block mb-2 text-yellow-300 uppercase tracking-wide">
@@ -137,7 +149,7 @@ const ConditionNode = memo(({ data, isConnecting }) => {
         )}
 
         {/* TimeCheck Fields */}
-        {conditionType === "TimeCheck" && (
+        {localConditionType === "TimeCheck" && (
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-semibold block mb-2 text-yellow-300 uppercase tracking-wide">

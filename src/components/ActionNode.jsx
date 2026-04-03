@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { Handle, Position } from "reactflow";
 
 /**
@@ -16,16 +16,24 @@ const ActionNode = memo(({ data, isConnecting }) => {
     "Delay",
   ];
 
-  const actionType = data.actionType || "SendMessage";
+  const [localActionType, setLocalActionType] = useState(data.actionType || "SendMessage");
 
   const handleActionTypeChange = useCallback((e) => {
     const newActionType = e.target.value;
+    setLocalActionType(newActionType);
     data.onUpdate?.({ ...data, actionType: newActionType });
   }, [data]);
 
   const handleFieldChange = useCallback((field, value) => {
     data.onUpdate?.({ ...data, [field]: value });
   }, [data]);
+
+  // Sync local state with prop changes
+  React.useEffect(() => {
+    if (data.actionType !== localActionType) {
+      setLocalActionType(data.actionType || "SendMessage");
+    }
+  }, [data.actionType, localActionType]);
 
   return (
     <div className="node-action p-0 rounded-lg min-w-[220px] shadow-xl">
@@ -40,7 +48,7 @@ const ActionNode = memo(({ data, isConnecting }) => {
       {/* Header */}
       <div className="node-header">
         <span>⚙️ Action</span>
-        <span className="text-xs opacity-70">{actionType}</span>
+        <span className="text-xs opacity-70">{localActionType}</span>
       </div>
 
       {/* Content */}
@@ -51,10 +59,12 @@ const ActionNode = memo(({ data, isConnecting }) => {
             Action Type:
           </label>
           <select
-            value={actionType}
+            value={localActionType}
             onChange={handleActionTypeChange}
-            className="w-full px-3 py-2 text-xs bg-blue-900/30 text-blue-100 rounded border border-blue-500/40 hover:border-blue-400/60 focus:outline-none focus:border-blue-300 focus:ring-1 focus:ring-blue-400/50 transition-colors"
             onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="w-full px-3 py-2 text-xs bg-blue-900/30 text-blue-100 rounded border border-blue-500/40 hover:border-blue-400/60 focus:outline-none focus:border-blue-300 focus:ring-1 focus:ring-blue-400/50 transition-colors"
           >
             {actionTypes.map((opt) => (
               <option key={opt} value={opt} className="bg-blue-900">
@@ -65,7 +75,7 @@ const ActionNode = memo(({ data, isConnecting }) => {
         </div>
 
         {/* Dynamic Fields */}
-        {actionType === "SendMessage" && (
+        {localActionType === "SendMessage" && (
           <div>
             <label className="text-xs font-semibold block mb-2 text-blue-300 uppercase tracking-wide">
               Message:
@@ -80,7 +90,7 @@ const ActionNode = memo(({ data, isConnecting }) => {
           </div>
         )}
 
-        {actionType === "GiveItem" && (
+        {localActionType === "GiveItem" && (
           <>
             <div>
               <label className="text-xs font-semibold block mb-2 text-blue-300 uppercase tracking-wide">
@@ -109,7 +119,7 @@ const ActionNode = memo(({ data, isConnecting }) => {
           </>
         )}
 
-        {actionType === "Teleport" && (
+        {localActionType === "Teleport" && (
           <div className="grid grid-cols-3 gap-2">
             {["x", "y", "z"].map((coord) => (
               <div key={coord}>
@@ -128,7 +138,7 @@ const ActionNode = memo(({ data, isConnecting }) => {
           </div>
         )}
 
-        {actionType === "SetStat" && (
+        {localActionType === "SetStat" && (
           <>
             <div>
               <label className="text-xs font-semibold block mb-2 text-blue-300 uppercase tracking-wide">
@@ -156,7 +166,7 @@ const ActionNode = memo(({ data, isConnecting }) => {
           </>
         )}
 
-        {actionType === "PlaySound" && (
+        {localActionType === "PlaySound" && (
           <div>
             <label className="text-xs font-semibold block mb-2 text-blue-300 uppercase tracking-wide">
               Sound ID:
@@ -171,7 +181,7 @@ const ActionNode = memo(({ data, isConnecting }) => {
           </div>
         )}
 
-        {actionType === "Delay" && (
+        {localActionType === "Delay" && (
           <div>
             <label className="text-xs font-semibold block mb-2 text-blue-300 uppercase tracking-wide">
               Delay (milliseconds):

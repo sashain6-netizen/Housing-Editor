@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { Handle, Position } from "reactflow";
 
 /**
@@ -18,17 +18,27 @@ const EventNode = memo(({ data, isConnecting }) => {
     "interact",
   ];
 
+  const [localEventType, setLocalEventType] = useState(data.eventType || "join");
+
   const handleEventTypeChange = useCallback((e) => {
     const newEventType = e.target.value;
+    setLocalEventType(newEventType);
     data.onUpdate?.({ ...data, eventType: newEventType });
   }, [data]);
+
+  // Sync local state with prop changes
+  React.useEffect(() => {
+    if (data.eventType !== localEventType) {
+      setLocalEventType(data.eventType || "join");
+    }
+  }, [data.eventType, localEventType]);
 
   return (
     <div className="node-event p-0 rounded-lg min-w-[200px] shadow-xl">
       {/* Header */}
       <div className="node-header">
         <span>⚡ Event</span>
-        <span className="text-xs opacity-70">{data.eventType || "select"}</span>
+        <span className="text-xs opacity-70">{localEventType}</span>
       </div>
 
       {/* Content */}
@@ -38,10 +48,12 @@ const EventNode = memo(({ data, isConnecting }) => {
             Event Type:
           </label>
           <select
-            value={data.eventType || "join"}
+            value={localEventType}
             onChange={handleEventTypeChange}
-            className="w-full px-3 py-2 text-xs bg-purple-900/30 text-purple-100 rounded border border-purple-500/40 hover:border-purple-400/60 focus:outline-none focus:border-purple-300 focus:ring-1 focus:ring-purple-400/50 transition-colors"
             onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="w-full px-3 py-2 text-xs bg-purple-900/30 text-purple-100 rounded border border-purple-500/40 hover:border-purple-400/60 focus:outline-none focus:border-purple-300 focus:ring-1 focus:ring-purple-400/50 transition-colors"
           >
             {eventOptions.map((opt) => (
               <option key={opt} value={opt} className="bg-purple-900">
