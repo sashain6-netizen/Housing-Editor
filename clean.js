@@ -938,7 +938,7 @@ function expandJsCommentRange(source, comment) {
   const after = source.slice(end, lineEnd);
   const isFullLine = before.trim() === '' && after.trim() === '';
 
-  if (isFullLine) {
+  if (isFullLine) { 
     start = lineStart;
     end = consumeLineBreak(source, lineEnd);
     return { start, end };
