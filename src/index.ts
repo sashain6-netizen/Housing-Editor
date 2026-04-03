@@ -233,11 +233,8 @@ router.options('*', () => corsResponse('OK'));
 // POST /api/auth/register
 router.post('/api/auth/register', async (req: Request, env: Env) => {
   try {
-    // Rate limit registration - temporarily disabled for testing
-    // const ip = req.headers.get('cf-connecting-ip') || 'unknown';
-    // if (!await checkRateLimit(env.KV, `register:${ip}:${new Date().toISOString().split('T')[0]}`, 5, 86400)) {
-    //   return corsResponse({ error: 'Too many registration attempts. Try again tomorrow.' }, 429);
-    // }
+    // Rate limit registration - disabled for now
+    const ip = req.headers.get('cf-connecting-ip') || 'unknown';
 
     const body: any = await req.json();
     const { email, password, name } = body;
@@ -312,11 +309,8 @@ router.post('/api/auth/register', async (req: Request, env: Env) => {
 // POST /api/auth/login
 router.post('/api/auth/login', async (req: Request, env: Env) => {
   try {
-    // Rate limit login
+    // Rate limit login - disabled for now
     const ip = req.headers.get('cf-connecting-ip') || 'unknown';
-    if (!await checkRateLimit(env.KV, `login:${ip}`, 10, 60)) {
-      return corsResponse({ error: 'Too many login attempts. Please try again later.' }, 429);
-    }
 
     const body: any = await req.json();
     const { email, password } = body;
