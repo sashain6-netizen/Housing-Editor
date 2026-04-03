@@ -73,23 +73,48 @@ function EditorPage() {
 
   // Load house data when fetched
   useEffect(() => {
-    if (currentHouse && currentHouse.code) {
-      try {
-        const { nodes: parsedNodes, edges: parsedEdges } = parseHTSLToNodes(currentHouse.code);
-        // Only update if parsing succeeds
-        if (parsedNodes && parsedEdges) {
-          setNodes(parsedNodes);
-          setEdges(parsedEdges);
-          setHTSLCode(currentHouse.code);
-          setSyncMode("visual");
+    if (currentHouse) {
+      // First, set the code regardless
+      setHTSLCode(currentHouse.code || "// Empty - Start by adding an Event node");
+      
+      // Try to load node data if it exists
+      if (currentHouse.node_data) {
+        try {
+          const nodeData = JSON.parse(currentHouse.node_data);
+          if (nodeData.nodes && nodeData.edges) {
+            console.log("Loading saved node structure:", nodeData.nodes.length, "nodes,", nodeData.edges.length, "edges");
+            setNodes(nodeData.nodes);
+            setEdges(nodeData.edges);
+            setSyncMode(nodeData.syncMode || "visual");
+            return; // Skip code parsing since we have node data
+          }
+        } catch (error) {
+          console.error("Error parsing node data:", error);
+          // Fall back to code parsing
         }
-      } catch (error) {
-        console.error("Error parsing house code:", error);
-        // Set empty state if parsing fails
+      }
+      
+      // Fallback: parse code to nodes if no node data or parsing failed
+      if (currentHouse.code) {
+        try {
+          const { nodes: parsedNodes, edges: parsedEdges } = parseHTSLToNodes(currentHouse.code);
+          if (parsedNodes && parsedEdges) {
+            setNodes(parsedNodes);
+            setEdges(parsedEdges);
+            setSyncMode("visual");
+          }
+        } catch (error) {
+          console.error("Error parsing house code:", error);
+          // Set empty state if parsing fails
+          setNodes([]);
+          setEdges([]);
+          setSyncMode("code");
+        }
+      } else {
+        // Empty house
         setNodes([]);
         setEdges([]);
-        setHTSLCode(currentHouse.code);
-        setSyncMode("code");
+        setSyncMode("visual");
       }
     }
   }, [currentHouse]);
@@ -103,10 +128,20 @@ function EditorPage() {
         return;
       }
 
-      console.log("Attempting to save house:", currentHouseId, "with code length:", code?.length || 0);
+      // Create node data structure
+      const nodeData = {
+        nodes: nodes,
+        edges: edges,
+        syncMode: syncMode
+      };
+
+      console.log("Attempting to save house:", currentHouseId, "with code length:", code?.length || 0, "nodes:", nodes.length, "edges:", edges.length);
       setIsSaving(true);
       try {
-        await updateHouse(currentHouseId, { code: code || "" });
+        await updateHouse(currentHouseId, { 
+          code: code || "", 
+          node_data: JSON.stringify(nodeData)
+        });
         setLastSaveTime(new Date());
         console.log("Save successful for house:", currentHouseId);
       } catch (error) {
@@ -116,7 +151,7 @@ function EditorPage() {
         setIsSaving(false);
       }
     }, 2000),
-    [updateHouse]
+    [updateHouse, nodes, edges, syncMode]
   );
 
   // Update HTSL code when nodes/edges change (visual editor)
@@ -152,6 +187,7 @@ function EditorPage() {
       setEdges([]);
     }
 
+    // Save with current node structure and new code
     debouncedSave(newCode);
   };
 

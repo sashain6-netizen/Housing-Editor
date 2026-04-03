@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS houses (
     name TEXT NOT NULL,
     description TEXT DEFAULT '',
     code TEXT DEFAULT '',
+    node_data TEXT DEFAULT '',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

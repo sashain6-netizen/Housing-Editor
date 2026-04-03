@@ -113,7 +113,7 @@ export async function onRequestPut(context) {
 
     const text = await request.text();
     const body = JSON.parse(text);
-    const { name, description, code } = body;
+    const { name, description, code, node_data } = body;
 
     // Validate updates
     if (name !== undefined) {
@@ -141,16 +141,40 @@ export async function onRequestPut(context) {
 
     // Update house
     const now = new Date().toISOString();
-    await env.DB.prepare(
-      'UPDATE houses SET name = COALESCE(?, name), description = COALESCE(?, description), code = COALESCE(?, code), updated_at = ? WHERE id = ? AND user_id = ?'
-    ).bind(
-      name ? name.trim() : null,
-      description !== undefined ? (description?.trim() || '') : null,
-      code !== undefined ? code : null,
-      now,
-      houseId,
-      payload.userId
-    ).run();
+    
+    try {
+      await env.DB.prepare(
+        'UPDATE houses SET name = COALESCE(?, name), description = COALESCE(?, description), code = COALESCE(?, code), node_data = COALESCE(?, node_data), updated_at = ? WHERE id = ? AND user_id = ?'
+      ).bind(
+        name ? name.trim() : null,
+        description !== undefined ? (description?.trim() || '') : null,
+        code !== undefined ? code : null,
+        node_data !== undefined ? node_data : null,
+        now,
+        houseId,
+        payload.userId
+      ).run();
+    } catch (error) {
+      // If column doesn't exist, try to add it and retry
+      if (error.message.includes('no such column: node_data')) {
+        console.log('Adding node_data column automatically');
+        await env.DB.prepare('ALTER TABLE houses ADD COLUMN node_data TEXT DEFAULT \'\'').run();
+        // Retry the update
+        await env.DB.prepare(
+          'UPDATE houses SET name = COALESCE(?, name), description = COALESCE(?, description), code = COALESCE(?, code), node_data = COALESCE(?, node_data), updated_at = ? WHERE id = ? AND user_id = ?'
+        ).bind(
+          name ? name.trim() : null,
+          description !== undefined ? (description?.trim() || '') : null,
+          code !== undefined ? code : null,
+          node_data !== undefined ? node_data : null,
+          now,
+          houseId,
+          payload.userId
+        ).run();
+      } else {
+        throw error;
+      }
+    }
 
     // Fetch updated house
     const updatedHouse = await env.DB.prepare(

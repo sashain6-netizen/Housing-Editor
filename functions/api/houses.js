@@ -105,9 +105,23 @@ export async function onRequestPost(context) {
     const houseId = crypto.randomUUID();
     const now = new Date().toISOString();
 
-    await env.DB.prepare(
-      'INSERT INTO houses (id, user_id, name, description, code, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
-    ).bind(houseId, payload.userId, name.trim(), description?.trim() || '', '', now, now).run();
+    try {
+      await env.DB.prepare(
+        'INSERT INTO houses (id, user_id, name, description, code, node_data, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+      ).bind(houseId, payload.userId, name.trim(), description?.trim() || '', '', '', now, now).run();
+    } catch (error) {
+      // If column doesn't exist, try to add it and retry
+      if (error.message.includes('no such column: node_data')) {
+        console.log('Adding node_data column automatically during house creation');
+        await env.DB.prepare('ALTER TABLE houses ADD COLUMN node_data TEXT DEFAULT \'\'').run();
+        // Retry the insert
+        await env.DB.prepare(
+          'INSERT INTO houses (id, user_id, name, description, code, node_data, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+        ).bind(houseId, payload.userId, name.trim(), description?.trim() || '', '', '', now, now).run();
+      } else {
+        throw error;
+      }
+    }
 
     // Fetch the created house
     const createdHouse = await env.DB.prepare(
