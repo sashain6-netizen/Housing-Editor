@@ -5,7 +5,7 @@ pages_build_output_dir = "dist"
 
 # Production Environment for Pages
 [env.production]
-vars = { VITE_API_URL = "https://housing-editor-api.sashain6.workers.dev", JWT_SECRET = "your-super-secret-jwt-key-change-this-in-production" }
+vars = { VITE_API_URL = "https://housing-editor-api-production.sashain6.workers.dev", JWT_SECRET = "your-super-secret-jwt-key-change-this-in-production" }
 
 # D1 Database Configuration for the Worker
 [[env.production.d1_databases]]
