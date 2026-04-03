@@ -9,6 +9,8 @@
  * The compiler maintains a flat structure per Hypixel Housing constraints
  */
 
+import { v4 as uuidv4 } from "uuid";
+
 export function generateHTSL(nodes = [], edges = []) {
   if (!nodes.length) {
     return "// No nodes defined";
@@ -183,7 +185,7 @@ function generateActionCode(data) {
     case "ClearInventory":
       return `  clear_inventory`;
 
-    case "Kill":
+    case "KillPlayer":
       return `  kill_player`;
 
     default:

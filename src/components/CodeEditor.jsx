@@ -33,9 +33,23 @@ export const CodeEditor = ({ code, onCodeChange, isLoading = false }) => {
     debouncedOnChange(newCode);
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(displayCode);
-    alert("✓ Code copied to clipboard!");
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(displayCode);
+      // Show success message without using alert
+      const button = document.querySelector('[title="Copy to clipboard"]');
+      if (button) {
+        const originalText = button.textContent;
+        button.textContent = '✓ Copied!';
+        button.classList.add('text-green-400');
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.classList.remove('text-green-400');
+        }, 2000);
+      }
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
   };
 
   const handleDownload = () => {
@@ -53,7 +67,7 @@ export const CodeEditor = ({ code, onCodeChange, isLoading = false }) => {
   };
 
   const handleClear = () => {
-    if (window.confirm("Are you sure you want to clear all code?")) {
+    if (window.confirm("Are you sure you want to clear all code? This action cannot be undone.")) {
       setDisplayCode("");
       onCodeChange("");
     }

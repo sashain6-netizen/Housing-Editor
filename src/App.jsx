@@ -8,8 +8,11 @@ import { LoginPage, RegisterPage } from "./pages/AuthPages";
 import { DashboardPage } from "./pages/DashboardPage";
 import EditorPage from "./pages/EditorPage";
 
-// Components
-import { ProtectedRoute } from "./components/ProtectedRoute";
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { user } = useAuthStore();
+  return user ? children : <Navigate to="/login" replace />;
+};
 
 /**
  * Main App Component - Hypixel Housing HTSL Editor

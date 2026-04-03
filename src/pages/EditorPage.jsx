@@ -143,6 +143,18 @@ function EditorPage() {
         return;
       }
 
+      // Check for duplicate connections
+      const duplicateEdge = edges.find(
+        edge => edge.source === connection.source && 
+                edge.target === connection.target &&
+                edge.sourceHandle === connection.sourceHandle
+      );
+      
+      if (duplicateEdge) {
+        console.warn('Duplicate connection not allowed:', connection);
+        return;
+      }
+
       // Validate connection rules
       if (!isValidConnection(sourceNode, targetNode, connection)) {
         console.warn('Invalid connection between nodes:', { source: sourceNode.type, target: targetNode.type, connection });
@@ -151,7 +163,7 @@ function EditorPage() {
 
       setEdges((eds) => addEdge(connection, eds));
     },
-    [setEdges, nodes]
+    [setEdges, nodes, edges]
   );
 
   const addNode = useCallback(
