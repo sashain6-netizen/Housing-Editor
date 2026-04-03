@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
 import { Handle, Position } from "reactflow";
 
 /**
@@ -18,6 +18,11 @@ const EventNode = memo(({ data, isConnecting }) => {
     "interact",
   ];
 
+  const handleEventTypeChange = useCallback((e) => {
+    const newEventType = e.target.value;
+    data.onUpdate?.({ ...data, eventType: newEventType });
+  }, [data]);
+
   return (
     <div className="node-event p-0 rounded-lg min-w-[200px] shadow-xl">
       {/* Header */}
@@ -34,10 +39,9 @@ const EventNode = memo(({ data, isConnecting }) => {
           </label>
           <select
             value={data.eventType || "join"}
-            onChange={(e) =>
-              data.onUpdate?.({ ...data, eventType: e.target.value })
-            }
+            onChange={handleEventTypeChange}
             className="w-full px-3 py-2 text-xs bg-purple-900/30 text-purple-100 rounded border border-purple-500/40 hover:border-purple-400/60 focus:outline-none focus:border-purple-300 focus:ring-1 focus:ring-purple-400/50 transition-colors"
+            onMouseDown={(e) => e.stopPropagation()}
           >
             {eventOptions.map((opt) => (
               <option key={opt} value={opt} className="bg-purple-900">

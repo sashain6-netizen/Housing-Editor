@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
 import { Handle, Position } from "reactflow";
 
 /**
@@ -11,6 +11,15 @@ const ConditionNode = memo(({ data, isConnecting }) => {
   const conditionTypes = ["StatCheck", "ItemCheck", "TimeCheck"];
   const operators = [">=", "<=", "==", "!=", ">", "<"];
   const conditionType = data.conditionType || "StatCheck";
+
+  const handleConditionTypeChange = useCallback((e) => {
+    const newConditionType = e.target.value;
+    data.onUpdate?.({ ...data, conditionType: newConditionType });
+  }, [data]);
+
+  const handleFieldChange = useCallback((field, value) => {
+    data.onUpdate?.({ ...data, [field]: value });
+  }, [data]);
 
   return (
     <div className="node-condition p-0 rounded-lg min-w-[240px] shadow-xl">
@@ -37,10 +46,9 @@ const ConditionNode = memo(({ data, isConnecting }) => {
           </label>
           <select
             value={conditionType}
-            onChange={(e) =>
-              data.onUpdate?.({ ...data, conditionType: e.target.value })
-            }
+            onChange={handleConditionTypeChange}
             className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 hover:border-orange-400/60 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
+            onMouseDown={(e) => e.stopPropagation()}
           >
             {conditionTypes.map((opt) => (
               <option key={opt} value={opt} className="bg-orange-900">
@@ -60,9 +68,7 @@ const ConditionNode = memo(({ data, isConnecting }) => {
               <input
                 type="text"
                 value={data.statName || "coins"}
-                onChange={(e) =>
-                  data.onUpdate?.({ ...data, statName: e.target.value })
-                }
+                onChange={(e) => handleFieldChange("statName", e.target.value)}
                 placeholder="e.g., coins, level"
                 className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 placeholder-orange-400/50 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
               />
@@ -74,10 +80,9 @@ const ConditionNode = memo(({ data, isConnecting }) => {
                 </label>
                 <select
                   value={data.operator || ">="}
-                  onChange={(e) =>
-                    data.onUpdate?.({ ...data, operator: e.target.value })
-                  }
+                  onChange={(e) => handleFieldChange("operator", e.target.value)}
                   className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
+                  onMouseDown={(e) => e.stopPropagation()}
                 >
                   {operators.map((op) => (
                     <option key={op} value={op} className="bg-orange-900">
@@ -93,12 +98,7 @@ const ConditionNode = memo(({ data, isConnecting }) => {
                 <input
                   type="number"
                   value={data.compareValue || 10}
-                  onChange={(e) =>
-                    data.onUpdate?.({
-                      ...data,
-                      compareValue: parseInt(e.target.value) || 10,
-                    })
-                  }
+                  onChange={(e) => handleFieldChange("compareValue", parseInt(e.target.value) || 10)}
                   className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
                 />
               </div>
@@ -116,9 +116,7 @@ const ConditionNode = memo(({ data, isConnecting }) => {
               <input
                 type="text"
                 value={data.itemName || ""}
-                onChange={(e) =>
-                  data.onUpdate?.({ ...data, itemName: e.target.value })
-                }
+                onChange={(e) => handleFieldChange("itemName", e.target.value)}
                 placeholder="e.g., diamond"
                 className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 placeholder-orange-400/50 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
               />
@@ -130,12 +128,7 @@ const ConditionNode = memo(({ data, isConnecting }) => {
               <input
                 type="number"
                 value={data.minQuantity || 1}
-                onChange={(e) =>
-                  data.onUpdate?.({
-                    ...data,
-                    minQuantity: Math.max(1, parseInt(e.target.value)) || 1,
-                  })
-                }
+                onChange={(e) => handleFieldChange("minQuantity", Math.max(1, parseInt(e.target.value)) || 1)}
                 min="1"
                 className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
               />
@@ -155,12 +148,7 @@ const ConditionNode = memo(({ data, isConnecting }) => {
                 min="0"
                 max="23"
                 value={data.hour || 12}
-                onChange={(e) =>
-                  data.onUpdate?.({
-                    ...data,
-                    hour: parseInt(e.target.value) || 12,
-                  })
-                }
+                onChange={(e) => handleFieldChange("hour", parseInt(e.target.value) || 12)}
                 className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
               />
             </div>
@@ -173,12 +161,7 @@ const ConditionNode = memo(({ data, isConnecting }) => {
                 min="0"
                 max="59"
                 value={data.minute || 0}
-                onChange={(e) =>
-                  data.onUpdate?.({
-                    ...data,
-                    minute: parseInt(e.target.value) || 0,
-                  })
-                }
+                onChange={(e) => handleFieldChange("minute", parseInt(e.target.value) || 0)}
                 className="w-full px-3 py-2 text-xs bg-orange-900/30 text-yellow-100 rounded border border-orange-500/40 focus:outline-none focus:border-orange-300 focus:ring-1 focus:ring-orange-400/50 transition-colors"
               />
             </div>

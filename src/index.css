@@ -324,7 +324,8 @@ button {
    =================================== */
 
 input,
-textarea {
+textarea,
+select {
   background: rgba(30, 41, 59, 0.6);
   border: 1px solid rgba(129, 140, 248, 0.3);
   color: #e4e6eb;
@@ -334,7 +335,8 @@ textarea {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   outline: none;
   border-color: rgba(129, 140, 248, 0.6);
   background: rgba(30, 41, 59, 0.8);
@@ -344,6 +346,37 @@ textarea:focus {
 input::placeholder,
 textarea::placeholder {
   color: rgba(148, 163, 184, 0.5);
+}
+
+/* Select dropdown specific styles */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23818cf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  padding-right: 32px;
+  cursor: pointer;
+}
+
+select option {
+  background: rgba(30, 41, 59, 0.95);
+  color: #e4e6eb;
+  padding: 8px;
+}
+
+/* Prevent select from closing during interactions */
+select:focus {
+  position: relative;
+  z-index: 1000;
+}
+
+/* Make sure select dropdowns stay open */
+select:active {
+  position: relative;
+  z-index: 1001;
 }
 
 /* ===================================
