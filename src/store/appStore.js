@@ -23,7 +23,7 @@ export const useAuthStore = create((set) => ({
   register: async (email, password, name) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/api/auth/register`, {
+      const response = await axios.post(`${API_URL}/auth/register`, {
         email,
         password,
         name,
@@ -48,7 +48,7 @@ export const useAuthStore = create((set) => ({
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/api/auth/login`, {
+      const response = await axios.post(`${API_URL}/auth/login`, {
         email,
         password,
       });
@@ -84,7 +84,7 @@ export const useAuthStore = create((set) => ({
 
     try {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      const response = await axios.get(`${API_URL}/api/auth/me`);
+      const response = await axios.get(`${API_URL}/auth/me`);
       set({ user: response.data, token });
       return true;
     } catch (error) {
@@ -105,7 +105,7 @@ export const useHousingStore = create((set) => ({
   fetchHouses: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.get(`${API_URL}/api/houses`);
+      const response = await axios.get(`${API_URL}/houses`);
       set({ houses: response.data, isLoading: false });
       return response.data;
     } catch (error) {
@@ -118,7 +118,7 @@ export const useHousingStore = create((set) => ({
   createHouse: async (name, description) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/api/houses`, {
+      const response = await axios.post(`${API_URL}/houses`, {
         name,
         description,
         code: "",
@@ -138,7 +138,7 @@ export const useHousingStore = create((set) => ({
   deleteHouse: async (houseId) => {
     set({ isLoading: true, error: null });
     try {
-      await axios.delete(`${API_URL}/api/houses/${houseId}`);
+      await axios.delete(`${API_URL}/houses/${houseId}`);
       set((state) => ({
         houses: state.houses.filter((h) => h.id !== houseId),
         isLoading: false,
@@ -153,7 +153,7 @@ export const useHousingStore = create((set) => ({
   fetchHouse: async (houseId) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.get(`${API_URL}/api/houses/${houseId}`);
+      const response = await axios.get(`${API_URL}/houses/${houseId}`);
       set({ currentHouse: response.data, isLoading: false });
       return response.data;
     } catch (error) {
@@ -165,7 +165,7 @@ export const useHousingStore = create((set) => ({
 
   updateHouse: async (houseId, updates) => {
     try {
-      const response = await axios.put(`${API_URL}/api/houses/${houseId}`, updates);
+      const response = await axios.put(`${API_URL}/houses/${houseId}`, updates);
       set((state) => ({
         currentHouse: response.data,
         houses: state.houses.map((h) => (h.id === houseId ? response.data : h)),
