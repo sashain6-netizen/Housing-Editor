@@ -11,27 +11,23 @@ export async function onRequestGet(context) {
       });
     }
 
-    // For now, we'll skip JWT verification and just return a mock user
-    // In a real implementation, you'd verify the JWT token and get the user ID
-    // Then fetch the actual user from the database
+    // For now, return empty houses array since we don't have proper JWT verification
+    // In a real implementation, you'd:
+    // 1. Verify the JWT token to get user ID
+    // 2. Query the database for user's houses
+    // 3. Return the houses array
     
-    // TODO: Implement proper JWT verification
-    // For now, return a basic user structure to prevent the frontend from breaking
     return new Response(JSON.stringify({
       success: true,
-      user: {
-        id: "temp-user-id",
-        email: "user@example.com",
-        name: "User"
-      }
+      houses: [] // Empty array for now
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
 
   } catch (error) {
-    console.error('Auth check error:', error);
-    return new Response(JSON.stringify({ error: 'Auth check failed: ' + error.message }), {
+    console.error('Fetch houses error:', error);
+    return new Response(JSON.stringify({ error: 'Failed to fetch houses: ' + error.message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });

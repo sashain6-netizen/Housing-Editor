@@ -102,7 +102,11 @@ async function onRequestGet(context) {
     }
     return new Response(JSON.stringify({
       success: true,
-      message: "User is authenticated"
+      user: {
+        id: "temp-user-id",
+        email: "user@example.com",
+        name: "User"
+      }
     }), {
       status: 200,
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
@@ -224,6 +228,35 @@ async function onRequestGet2(context) {
 }
 __name(onRequestGet2, "onRequestGet");
 
+// api/houses.js
+async function onRequestGet3(context) {
+  const { request, env } = context;
+  try {
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+      });
+    }
+    return new Response(JSON.stringify({
+      success: true,
+      houses: []
+      // Empty array for now
+    }), {
+      status: 200,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+    });
+  } catch (error) {
+    console.error("Fetch houses error:", error);
+    return new Response(JSON.stringify({ error: "Failed to fetch houses: " + error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+    });
+  }
+}
+__name(onRequestGet3, "onRequestGet");
+
 // ../.wrangler/tmp/pages-8R1Y1O/functionsRoutes-0.9183494132481699.mjs
 var routes = [
   {
@@ -253,6 +286,13 @@ var routes = [
     method: "GET",
     middlewares: [],
     modules: [onRequestGet2]
+  },
+  {
+    routePath: "/api/houses",
+    mountPath: "/api",
+    method: "GET",
+    middlewares: [],
+    modules: [onRequestGet3]
   }
 ];
 
@@ -743,7 +783,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-QNoMCn/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-VGXPAi/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -775,7 +815,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-QNoMCn/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-VGXPAi/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

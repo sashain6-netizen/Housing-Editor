@@ -106,7 +106,11 @@ async function onRequestGet(context) {
     }
     return new Response(JSON.stringify({
       success: true,
-      message: "User is authenticated"
+      user: {
+        id: "temp-user-id",
+        email: "user@example.com",
+        name: "User"
+      }
     }), {
       status: 200,
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
@@ -229,6 +233,34 @@ async function onRequestGet2(context) {
 }
 __name(onRequestGet2, "onRequestGet2");
 __name2(onRequestGet2, "onRequestGet");
+async function onRequestGet3(context) {
+  const { request, env } = context;
+  try {
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+      });
+    }
+    return new Response(JSON.stringify({
+      success: true,
+      houses: []
+      // Empty array for now
+    }), {
+      status: 200,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+    });
+  } catch (error) {
+    console.error("Fetch houses error:", error);
+    return new Response(JSON.stringify({ error: "Failed to fetch houses: " + error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+    });
+  }
+}
+__name(onRequestGet3, "onRequestGet3");
+__name2(onRequestGet3, "onRequestGet");
 var routes = [
   {
     routePath: "/api/auth/login",
@@ -257,6 +289,13 @@ var routes = [
     method: "GET",
     middlewares: [],
     modules: [onRequestGet2]
+  },
+  {
+    routePath: "/api/houses",
+    mountPath: "/api",
+    method: "GET",
+    middlewares: [],
+    modules: [onRequestGet3]
   }
 ];
 function lexer(str) {

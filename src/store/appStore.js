@@ -85,7 +85,7 @@ export const useAuthStore = create((set) => ({
     try {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       const response = await axios.get(`${API_URL}/auth/me`);
-      set({ user: response.data, token });
+      set({ user: response.data.user, token });
       return true;
     } catch (error) {
       localStorage.removeItem("auth_token");
@@ -106,7 +106,7 @@ export const useHousingStore = create((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axios.get(`${API_URL}/houses`);
-      set({ houses: response.data, isLoading: false });
+      set({ houses: response.data.houses || [], isLoading: false });
       return response.data;
     } catch (error) {
       const msg = error.response?.data?.message || "Failed to fetch houses";
