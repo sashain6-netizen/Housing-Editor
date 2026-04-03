@@ -128,13 +128,16 @@ function traverseFromNode(nodeId, nodes, edges, visited, nodeData) {
  * @returns {string} Event trigger code
  */
 function getEventTrigger(data) {
-  const eventType = data.eventType || "PlayerJoin";
+  const eventType = data.eventType || "join";
   const eventMap = {
-    PlayerJoin: 'on_event "PlayerJoin" {',
-    PlayerKill: 'on_event "PlayerKill" {',
-    PlayerDeath: 'on_event "PlayerDeath" {',
-    PlayerMove: 'on_event "PlayerMove" {',
-    BlockClick: 'on_event "BlockClick" {',
+    join: 'on_event "join" {',
+    quit: 'on_event "quit" {',
+    block_break: 'on_event "block_break" {',
+    block_place: 'on_event "block_place" {',
+    kill: 'on_event "kill" {',
+    death: 'on_event "death" {',
+    chat: 'on_event "chat" {',
+    interact: 'on_event "interact" {',
   };
 
   return eventMap[eventType] || `on_event "${eventType}" {`;

@@ -2,7 +2,6 @@ import React, { useCallback, useRef, useState, useEffect } from "react";
 import ReactFlow, {
   addEdge,
   Background,
-  Connection,
   useNodesState,
   useEdgesState,
   Controls,
@@ -62,12 +61,20 @@ function EditorPage() {
     if (currentHouse && currentHouse.code) {
       try {
         const { nodes: parsedNodes, edges: parsedEdges } = parseHTSLToNodes(currentHouse.code);
-        setNodes(parsedNodes);
-        setEdges(parsedEdges);
-        setHTSLCode(currentHouse.code);
-        setSyncMode("visual");
+        // Only update if parsing succeeds
+        if (parsedNodes && parsedEdges) {
+          setNodes(parsedNodes);
+          setEdges(parsedEdges);
+          setHTSLCode(currentHouse.code);
+          setSyncMode("visual");
+        }
       } catch (error) {
         console.error("Error parsing house code:", error);
+        // Set empty state if parsing fails
+        setNodes([]);
+        setEdges([]);
+        setHTSLCode(currentHouse.code);
+        setSyncMode("code");
       }
     }
   }, [currentHouse]);
@@ -106,11 +113,14 @@ function EditorPage() {
     try {
       // Parse code to nodes
       const { nodes: parsedNodes, edges: parsedEdges } = parseHTSLToNodes(newCode);
-      setNodes(parsedNodes);
-      setEdges(parsedEdges);
+      // Only update if parsing succeeds and returns valid nodes
+      if (parsedNodes && parsedEdges && parsedNodes.length >= 0) {
+        setNodes(parsedNodes);
+        setEdges(parsedEdges);
+      }
     } catch (error) {
       console.error("Parse error:", error);
-      // Keep visual editor as-is if parsing fails
+      // Keep existing nodes if parsing fails
     }
 
     debouncedSave(newCode);
@@ -118,9 +128,30 @@ function EditorPage() {
 
   const onConnect = useCallback(
     (connection) => {
+      // Validate connection
+      if (!connection.source || !connection.target) {
+        console.warn('Invalid connection:', connection);
+        return;
+      }
+
+      // Get source and target nodes
+      const sourceNode = nodes.find(n => n.id === connection.source);
+      const targetNode = nodes.find(n => n.id === connection.target);
+
+      if (!sourceNode || !targetNode) {
+        console.warn('Source or target node not found:', connection);
+        return;
+      }
+
+      // Validate connection rules
+      if (!isValidConnection(sourceNode, targetNode, connection)) {
+        console.warn('Invalid connection between nodes:', { source: sourceNode.type, target: targetNode.type, connection });
+        return;
+      }
+
       setEdges((eds) => addEdge(connection, eds));
     },
-    [setEdges]
+    [setEdges, nodes]
   );
 
   const addNode = useCallback(
@@ -129,7 +160,19 @@ function EditorPage() {
       let nodeData = { onUpdate: (data) => updateNodeData(newNodeId, data) };
 
       if (type === "event") {
-        nodeData.eventType = "PlayerJoin";
+        const eventType = nodeData.eventType || "join";
+        const eventMap = {
+          join: 'on_event "join" {',
+          quit: 'on_event "quit" {',
+          block_break: 'on_event "block_break" {',
+          block_place: 'on_event "block_place" {',
+          kill: 'on_event "kill" {',
+          death: 'on_event "death" {',
+          chat: 'on_event "chat" {',
+          interact: 'on_event "interact" {',
+        };
+
+        nodeData.eventTrigger = eventMap[eventType] || `on_event "${eventType}" {`;
       } else if (type === "action") {
         nodeData.actionType = "SendMessage";
         nodeData.message = "Welcome!";
@@ -157,7 +200,16 @@ function EditorPage() {
       setNodes((nds) =>
         nds.map((node) => {
           if (node.id === nodeId) {
-            return { ...node, data: { ...node.data, ...newData } };
+            // Preserve the onUpdate callback
+            const existingOnUpdate = node.data.onUpdate;
+            return { 
+              ...node, 
+              data: { 
+                ...node.data, 
+                ...newData,
+                onUpdate: existingOnUpdate // Ensure callback is preserved
+              } 
+            };
           }
           return node;
         })
@@ -179,7 +231,38 @@ function EditorPage() {
     }
   }, [setNodes, setEdges]);
 
-  const handleBackToDashboard = () => {
+// Connection validation function
+function isValidConnection(sourceNode, targetNode, connection) {
+  // Prevent self-connections
+  if (sourceNode.id === targetNode.id) {
+    return false;
+  }
+
+  // Prevent duplicate connections
+  // This will be checked at the edge level
+
+  // Event nodes can only connect to actions or conditions (output only)
+  if (sourceNode.type === 'event') {
+    return targetNode.type === 'action' || targetNode.type === 'condition';
+  }
+
+  // Action nodes can connect to other actions or conditions
+  if (sourceNode.type === 'action') {
+    return targetNode.type === 'action' || targetNode.type === 'condition';
+  }
+
+  // Condition nodes have special rules
+  if (sourceNode.type === 'condition') {
+    // Conditions can connect to actions or other conditions
+    if (targetNode.type === 'action' || targetNode.type === 'condition') {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+const handleBackToDashboard = () => {
     navigate("/dashboard");
   };
 
