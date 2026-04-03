@@ -37,6 +37,7 @@ function EditorPage() {
   const [syncMode, setSyncMode] = useState("visual"); // "visual" or "code"
   const [lastSaveTime, setLastSaveTime] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [accessError, setAccessError] = useState(null);
 
   const nodeTypes = {
     event: EventNode,
@@ -47,12 +48,20 @@ function EditorPage() {
   // Fetch house on mount
   useEffect(() => {
     if (!user) {
-      navigate("/login");
+      setAccessError("You need to be logged in to access this page.");
       return;
     }
 
     if (houseId) {
-      fetchHouse(houseId);
+      fetchHouse(houseId).catch((error) => {
+        if (error.response?.status === 403) {
+          setAccessError("You don't have permission to access this house.");
+        } else if (error.response?.status === 404) {
+          setAccessError("This house doesn't exist.");
+        } else {
+          setAccessError("Failed to load house. Please try again.");
+        }
+      });
     }
   }, [houseId, user]);
 
@@ -279,6 +288,32 @@ function isValidConnection(sourceNode, targetNode, connection) {
 const handleBackToDashboard = () => {
     navigate("/dashboard");
   };
+
+  // Show access error if any
+  if (accessError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-slate-800 rounded-lg shadow-2xl border border-slate-700 p-8 text-center">
+          <h1 className="text-2xl font-bold text-red-400 mb-4">🔒 Access Denied</h1>
+          <p className="text-slate-400 mb-6">{accessError}</p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={handleBackToDashboard}
+              className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white font-semibold rounded transition"
+            >
+              Dashboard
+            </button>
+            <a 
+              href="/login" 
+              className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded transition"
+            >
+              Sign In
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen w-screen bg-slate-900 text-slate-100 overflow-hidden">

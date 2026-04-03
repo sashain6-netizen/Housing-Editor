@@ -8,10 +8,28 @@ import { LoginPage, RegisterPage } from "./pages/AuthPages";
 import { DashboardPage } from "./pages/DashboardPage";
 import EditorPage from "./pages/EditorPage";
 
-// Protected Route Component
-const ProtectedRoute = ({ children }) => {
+// Access Control Route Component - prevents redirects, shows unauthorized state
+const AccessControlRoute = ({ children, requiresAuth = true }) => {
   const { user } = useAuthStore();
-  return user ? children : <Navigate to="/login" replace />;
+  
+  if (requiresAuth && !user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-slate-800 rounded-lg shadow-2xl border border-slate-700 p-8 text-center">
+          <h1 className="text-2xl font-bold text-red-400 mb-4">🔒 Access Denied</h1>
+          <p className="text-slate-400 mb-6">You need to be logged in to access this page.</p>
+          <a 
+            href="/login" 
+            className="inline-block px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded transition"
+          >
+            Sign In
+          </a>
+        </div>
+      </div>
+    );
+  }
+  
+  return children;
 };
 
 /**
@@ -43,17 +61,17 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <AccessControlRoute>
               <DashboardPage />
-            </ProtectedRoute>
+            </AccessControlRoute>
           }
         />
         <Route
           path="/editor/:houseId"
           element={
-            <ProtectedRoute>
+            <AccessControlRoute>
               <EditorPage />
-            </ProtectedRoute>
+            </AccessControlRoute>
           }
         />
 
