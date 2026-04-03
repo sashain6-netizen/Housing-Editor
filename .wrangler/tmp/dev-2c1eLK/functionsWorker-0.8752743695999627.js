@@ -32,10 +32,18 @@ async function onRequestPost(context) {
         headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
       });
     }
+    const expiresIn = 30 * 24 * 60 * 60;
+    const iat = Math.floor(Date.now() / 1e3);
+    const exp = iat + expiresIn;
+    const token = await signJWT(
+      { userId: user.id, email: user.email, iat, exp },
+      env.JWT_SECRET
+    );
     return new Response(JSON.stringify({
       success: true,
       user: { id: user.id, email: user.email, name: user.name },
-      message: "Login successful"
+      token,
+      expiresIn
     }), {
       status: 200,
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
@@ -66,6 +74,26 @@ async function verifyPassword(password, hash) {
 }
 __name(verifyPassword, "verifyPassword");
 __name2(verifyPassword, "verifyPassword");
+async function signJWT(payload, secret) {
+  const header = { alg: "HS256", typ: "JWT" };
+  const encodedHeader = btoa(JSON.stringify(header));
+  const encodedPayload = btoa(JSON.stringify(payload));
+  const message = `${encodedHeader}.${encodedPayload}`;
+  const signature = await hmacSign(message, secret);
+  return `${message}.${signature}`;
+}
+__name(signJWT, "signJWT");
+__name2(signJWT, "signJWT");
+async function hmacSign(message, secret) {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const messageData = encoder.encode(message);
+  const key = await crypto.subtle.importKey("raw", keyData, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const signature = await crypto.subtle.sign("HMAC", key, messageData);
+  return btoa(String.fromCharCode(...new Uint8Array(signature)));
+}
+__name(hmacSign, "hmacSign");
+__name2(hmacSign, "hmacSign");
 async function onRequestGet(context) {
   const { request, env } = context;
   try {
@@ -132,10 +160,18 @@ async function onRequestPost2(context) {
     await env.DB.prepare(
       "INSERT INTO users (id, email, password_hash, name, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)"
     ).bind(userId, email.toLowerCase(), passwordHash, name, now, now).run();
+    const expiresIn = 7 * 24 * 60 * 60;
+    const iat = Math.floor(Date.now() / 1e3);
+    const exp = iat + expiresIn;
+    const token = await signJWT2(
+      { userId, email: email.toLowerCase(), iat, exp },
+      env.JWT_SECRET
+    );
     return new Response(JSON.stringify({
       success: true,
       user: { id: userId, email: email.toLowerCase(), name },
-      message: "User registered successfully"
+      token,
+      expiresIn
     }), {
       status: 201,
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
@@ -161,6 +197,26 @@ async function hashPassword(password) {
 }
 __name(hashPassword, "hashPassword");
 __name2(hashPassword, "hashPassword");
+async function signJWT2(payload, secret) {
+  const header = { alg: "HS256", typ: "JWT" };
+  const encodedHeader = btoa(JSON.stringify(header));
+  const encodedPayload = btoa(JSON.stringify(payload));
+  const message = `${encodedHeader}.${encodedPayload}`;
+  const signature = await hmacSign2(message, secret);
+  return `${message}.${signature}`;
+}
+__name(signJWT2, "signJWT2");
+__name2(signJWT2, "signJWT");
+async function hmacSign2(message, secret) {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const messageData = encoder.encode(message);
+  const key = await crypto.subtle.importKey("raw", keyData, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const signature = await crypto.subtle.sign("HMAC", key, messageData);
+  return btoa(String.fromCharCode(...new Uint8Array(signature)));
+}
+__name(hmacSign2, "hmacSign2");
+__name2(hmacSign2, "hmacSign");
 async function onRequestGet2(context) {
   return new Response(JSON.stringify({
     success: true,

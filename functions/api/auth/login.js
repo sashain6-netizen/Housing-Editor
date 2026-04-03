@@ -32,10 +32,21 @@ export async function onRequestPost(context) {
       });
     }
 
+    // Generate JWT token
+    const expiresIn = 30 * 24 * 60 * 60; // 30 days
+    const iat = Math.floor(Date.now() / 1000);
+    const exp = iat + expiresIn;
+
+    const token = await signJWT(
+      { userId: user.id, email: user.email, iat, exp },
+      env.JWT_SECRET
+    );
+
     return new Response(JSON.stringify({
       success: true,
       user: { id: user.id, email: user.email, name: user.name },
-      message: 'Login successful'
+      token,
+      expiresIn
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
@@ -66,4 +77,26 @@ async function verifyPassword(password, hash) {
   } catch (error) {
     return false;
   }
+}
+
+async function signJWT(payload, secret) {
+  const header = { alg: 'HS256', typ: 'JWT' };
+  const encodedHeader = btoa(JSON.stringify(header));
+  const encodedPayload = btoa(JSON.stringify(payload));
+  
+  const message = `${encodedHeader}.${encodedPayload}`;
+  const signature = await hmacSign(message, secret);
+  
+  return `${message}.${signature}`;
+}
+
+async function hmacSign(message, secret) {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const messageData = encoder.encode(message);
+  
+  const key = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const signature = await crypto.subtle.sign('HMAC', key, messageData);
+  
+  return btoa(String.fromCharCode(...new Uint8Array(signature)));
 }
