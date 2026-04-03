@@ -1,35 +1,6 @@
-name = "housing-editor-api"
-main = "src/index.ts"
-compatibility_date = "2024-01-01"
-
 # Pages Build Configuration
 pages_build_output_dir = "dist"
 
-# Development Environment
-[env.development]
-vars = { ENVIRONMENT = "development" }
-
-# Production Environment
+# Production Environment for Pages
 [env.production]
-name = "housing-editor-api"
-route = "housing-editor-api.pages.dev/*"
-zone_id = ""
-vars = { ENVIRONMENT = "production", VITE_API_URL = "https://housing-editor-api.sashain6.workers.dev" }
-
-# Database Binding (D1)
-[[d1_databases]]
-binding = "DB"
-database_name = "housing-editor"
-database_id = "16d40a18-e293-4ebc-81e7-380c736f55f0"
-migrations_dir = "migrations"
-
-# KV Namespace Binding (Sessions/Cache)
-[[kv_namespaces]]
-binding = "KV"
-id = "c675420dfbbe46e7937fa8043c5d9ef6"
-
-# Environment Variables (set these in Cloudflare dashboard)
-[vars]
-MAX_AUTH_TOKEN_AGE = "604800"  # 7 days in seconds
-SESSION_TIMEOUT = "2592000"     # 30 days in seconds
-API_RATE_LIMIT = "100"
+vars = { VITE_API_URL = "https://housing-editor-api.sashain6.workers.dev" }
