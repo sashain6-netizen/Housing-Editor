@@ -85,9 +85,14 @@ export const useAuthStore = create((set) => ({
     try {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       const response = await axios.get(`${API_URL}/auth/me`);
-      set({ user: response.data.user, token });
-      return true;
+      if (response.data && response.data.user) {
+        set({ user: response.data.user, token });
+        return true;
+      } else {
+        throw new Error("Invalid response format");
+      }
     } catch (error) {
+      console.warn("Auth check failed:", error.response?.status, error.message);
       localStorage.removeItem("auth_token");
       delete axios.defaults.headers.common["Authorization"];
       set({ user: null, token: null });

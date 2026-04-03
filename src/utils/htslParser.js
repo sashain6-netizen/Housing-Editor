@@ -6,9 +6,10 @@
 /**
  * Parse HTSL code into nodes and edges
  * @param {string} code - HTSL code string
+ * @param {function} updateCallback - Callback for updating node data
  * @returns {object} { nodes, edges }
  */
-export function parseHTSLToNodes(code) {
+export function parseHTSLToNodes(code, updateCallback) {
   const nodes = [];
   const edges = [];
   let nodeIdCounter = 0;
@@ -41,8 +42,8 @@ export function parseHTSLToNodes(code) {
       nodes.push({
         id: eventId,
         type: "event",
-        data: { eventType, onUpdate: () => {} },
-        position: { x: 100, y: 100 },
+        data: { eventType, onUpdate: (data) => updateCallback && updateCallback(eventId, data) },
+        position: { x: 100, y: 100 + nodes.length * 150 },
       });
 
       // Parse event body for actions and conditions
@@ -107,7 +108,7 @@ function parseEventBody(body, parentId, startNodeId) {
               message,
               onUpdate: () => {},
             },
-            position: { x: 200, y: 100 + nodes.length * 100 },
+            position: { x: 200 + (nodes.length % 3) * 150, y: 100 + Math.floor(nodes.length / 3) * 120 },
           });
 
           edges.push({ source: lastNodeId, target: nodeId });
@@ -126,7 +127,7 @@ function parseEventBody(body, parentId, startNodeId) {
               itemCount: parseInt(count) || 1,
               onUpdate: () => {},
             },
-            position: { x: 200, y: 100 + nodes.length * 100 },
+            position: { x: 200 + (nodes.length % 3) * 150, y: 100 + Math.floor(nodes.length / 3) * 120 },
           });
 
           edges.push({ source: lastNodeId, target: nodeId });
@@ -146,7 +147,7 @@ function parseEventBody(body, parentId, startNodeId) {
               z: parseFloat(z) || 0,
               onUpdate: () => {},
             },
-            position: { x: 200, y: 100 + nodes.length * 100 },
+            position: { x: 200 + (nodes.length % 3) * 150, y: 100 + Math.floor(nodes.length / 3) * 120 },
           });
 
           edges.push({ source: lastNodeId, target: nodeId });
@@ -165,7 +166,7 @@ function parseEventBody(body, parentId, startNodeId) {
               statValue: parseInt(value) || 0,
               onUpdate: () => {},
             },
-            position: { x: 200, y: 100 + nodes.length * 100 },
+            position: { x: 200 + (nodes.length % 3) * 150, y: 100 + Math.floor(nodes.length / 3) * 120 },
           });
 
           edges.push({ source: lastNodeId, target: nodeId });
@@ -183,7 +184,7 @@ function parseEventBody(body, parentId, startNodeId) {
               soundName: sound,
               onUpdate: () => {},
             },
-            position: { x: 200, y: 100 + nodes.length * 100 },
+            position: { x: 200 + (nodes.length % 3) * 150, y: 100 + Math.floor(nodes.length / 3) * 120 },
           });
 
           edges.push({ source: lastNodeId, target: nodeId });
@@ -200,7 +201,7 @@ function parseEventBody(body, parentId, startNodeId) {
             id: nodeId,
             type: "condition",
             data: { ...conditionData, onUpdate: () => {} },
-            position: { x: 200, y: 100 + nodes.length * 100 },
+            position: { x: 200 + (nodes.length % 3) * 150, y: 100 + Math.floor(nodes.length / 3) * 120 },
           });
 
           edges.push({ source: lastNodeId, target: nodeId });

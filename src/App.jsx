@@ -29,7 +29,7 @@ function App() {
   // Check authentication status on app load
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+  }, []); // Empty dependency array - run only once
 
   return (
     <Router>

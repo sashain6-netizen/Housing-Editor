@@ -133,13 +133,13 @@ export const CodeEditor = ({ code, onCodeChange, isLoading = false }) => {
           onChange={handleChange}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className="absolute inset-0 w-full h-full p-4 bg-transparent text-indigo-100 font-mono text-sm resize-none outline-none border-none focus:ring-0 z-10 opacity-60 hover:opacity-70 transition-opacity"
+          className="absolute inset-0 w-full h-full p-4 bg-transparent text-indigo-100 font-mono text-sm resize-none outline-none border-none focus:ring-0 z-20 opacity-90 hover:opacity-100 transition-opacity"
           spellCheck="false"
           placeholder="# HTSL Code Editor&#10;# Edit code to update visual nodes&#10;&#10;on_event &quot;join&quot; {&#10;  send_message &quot;Welcome!&quot;&#10;}"
         />
 
         {/* Syntax Highlighted Display (behind textarea) */}
-        <div className="absolute inset-0 p-4 overflow-auto pointer-events-none bg-gradient-to-br from-slate-900/50 to-slate-950/50">
+        <div className="absolute inset-0 p-4 overflow-auto pointer-events-none bg-gradient-to-br from-slate-900/50 to-slate-950/50 z-10">
           <SyntaxHighlighter
             language="javascript"
             style={oneDark}

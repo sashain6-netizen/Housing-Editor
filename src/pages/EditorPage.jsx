@@ -128,7 +128,7 @@ function EditorPage() {
 
   const onConnect = useCallback(
     (connection) => {
-      // Validate connection
+      // Basic validation
       if (!connection.source || !connection.target) {
         console.warn('Invalid connection:', connection);
         return;
@@ -155,12 +155,7 @@ function EditorPage() {
         return;
       }
 
-      // Validate connection rules
-      if (!isValidConnection(sourceNode, targetNode, connection)) {
-        console.warn('Invalid connection between nodes:', { source: sourceNode.type, target: targetNode.type, connection });
-        return;
-      }
-
+      // Allow the connection and let ReactFlow handle the validation
       setEdges((eds) => addEdge(connection, eds));
     },
     [setEdges, nodes, edges]
@@ -172,19 +167,7 @@ function EditorPage() {
       let nodeData = { onUpdate: (data) => updateNodeData(newNodeId, data) };
 
       if (type === "event") {
-        const eventType = nodeData.eventType || "join";
-        const eventMap = {
-          join: 'on_event "join" {',
-          quit: 'on_event "quit" {',
-          block_break: 'on_event "block_break" {',
-          block_place: 'on_event "block_place" {',
-          kill: 'on_event "kill" {',
-          death: 'on_event "death" {',
-          chat: 'on_event "chat" {',
-          interact: 'on_event "interact" {',
-        };
-
-        nodeData.eventTrigger = eventMap[eventType] || `on_event "${eventType}" {`;
+        nodeData.eventType = "join";
       } else if (type === "action") {
         nodeData.actionType = "SendMessage";
         nodeData.message = "Welcome!";
@@ -367,6 +350,30 @@ const handleBackToDashboard = () => {
             onConnect={onConnect}
             nodeTypes={nodeTypes}
             fitView
+            isValidConnection={(connection) => {
+              const sourceNode = nodes.find(n => n.id === connection.source);
+              const targetNode = nodes.find(n => n.id === connection.target);
+              
+              if (!sourceNode || !targetNode) return false;
+              if (sourceNode.id === targetNode.id) return false;
+              
+              // Event nodes can only connect to actions or conditions
+              if (sourceNode.type === 'event') {
+                return targetNode.type === 'action' || targetNode.type === 'condition';
+              }
+              
+              // Action nodes can connect to other actions or conditions
+              if (sourceNode.type === 'action') {
+                return targetNode.type === 'action' || targetNode.type === 'condition';
+              }
+              
+              // Condition nodes can connect to actions or other conditions
+              if (sourceNode.type === 'condition') {
+                return targetNode.type === 'action' || targetNode.type === 'condition';
+              }
+              
+              return false;
+            }}
           >
             <Background />
             <Controls />
