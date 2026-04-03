@@ -31,6 +31,7 @@ function EditorPage() {
   const { currentHouse, fetchHouse, updateHouse, isLoading: housingLoading } = useHousingStore();
 
   const nodeIdRef = useRef(0);
+  const houseIdRef = useRef(houseId); // Ref to store current houseId
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [htslCode, setHTSLCode] = useState("// Empty - Start by adding an Event node");
@@ -38,6 +39,11 @@ function EditorPage() {
   const [lastSaveTime, setLastSaveTime] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [accessError, setAccessError] = useState(null);
+
+  // Update houseId ref when houseId changes
+  useEffect(() => {
+    houseIdRef.current = houseId;
+  }, [houseId]);
 
   const nodeTypes = {
     event: EventNode,
@@ -91,17 +97,18 @@ function EditorPage() {
   // Auto-save to database
   const debouncedSave = useCallback(
     debounce(async (code) => {
-      if (!houseId) {
-        console.log("Save skipped: missing houseId", { houseId });
+      const currentHouseId = houseIdRef.current; // Get current value from ref
+      if (!currentHouseId) {
+        console.log("Save skipped: missing houseId", { houseId: currentHouseId });
         return;
       }
 
-      console.log("Attempting to save house:", houseId, "with code length:", code?.length || 0);
+      console.log("Attempting to save house:", currentHouseId, "with code length:", code?.length || 0);
       setIsSaving(true);
       try {
-        await updateHouse(houseId, { code: code || "" });
+        await updateHouse(currentHouseId, { code: code || "" });
         setLastSaveTime(new Date());
-        console.log("Save successful for house:", houseId);
+        console.log("Save successful for house:", currentHouseId);
       } catch (error) {
         console.error("Save error:", error);
         alert(`Failed to save: ${error.response?.data?.message || error.message}`);
@@ -109,7 +116,7 @@ function EditorPage() {
         setIsSaving(false);
       }
     }, 2000),
-    [houseId, updateHouse]
+    [updateHouse]
   );
 
   // Update HTSL code when nodes/edges change (visual editor)
@@ -118,7 +125,7 @@ function EditorPage() {
     setHTSLCode(code);
     setSyncMode("visual");
     debouncedSave(code);
-  }, [nodes, edges]);
+  }, [nodes, edges, debouncedSave]);
 
   // Handle code changes from code editor
   const handleCodeChange = (newCode) => {
