@@ -152,7 +152,14 @@ function hashToken(token) {
 // ============================================================
 
 async function handleRequest(request, env, ctx) {
-  const url = new URL(request.url);
+  let url;
+  try {
+    url = new URL(request.url);
+  } catch (error) {
+    // Fallback for Pages Functions environment
+    const requestUrl = request.url || 'http://localhost:8788';
+    url = new URL(requestUrl);
+  }
   const path = url.pathname;
   const method = request.method;
 
@@ -217,7 +224,14 @@ async function handleRequest(request, env, ctx) {
 
 async function handleRegister(request, env) {
   try {
-    const body = await request.json();
+    let body;
+    try {
+      const text = await request.text();
+      body = JSON.parse(text);
+    } catch (parseError) {
+      return corsResponse({ error: 'Invalid JSON in request body' }, 400);
+    }
+    
     const { email, password, name } = body;
 
     if (!email || !password || !name) {
@@ -284,7 +298,14 @@ async function handleRegister(request, env) {
 
 async function handleLogin(request, env) {
   try {
-    const body = await request.json();
+    let body;
+    try {
+      const text = await request.text();
+      body = JSON.parse(text);
+    } catch (parseError) {
+      return corsResponse({ error: 'Invalid JSON in request body' }, 400);
+    }
+    
     const { email, password } = body;
 
     if (!email || !password) {
@@ -409,7 +430,14 @@ async function handleCreateHouse(request, env) {
     const userId = await authenticateRequest(request, env);
     if (!userId) return corsResponse({ error: 'Unauthorized' }, 401);
 
-    const body = await request.json();
+    let body;
+    try {
+      const text = await request.text();
+      body = JSON.parse(text);
+    } catch (parseError) {
+      return corsResponse({ error: 'Invalid JSON in request body' }, 400);
+    }
+    
     const { name, description, code } = body;
 
     if (!name) return corsResponse({ error: 'House name is required' }, 400);
@@ -477,7 +505,14 @@ async function handleUpdateHouse(request, env) {
     const houseId = url.pathname.split('/').pop();
     if (!houseId) return corsResponse({ error: 'House ID is required' }, 400);
 
-    const body = await request.json();
+    let body;
+    try {
+      const text = await request.text();
+      body = JSON.parse(text);
+    } catch (parseError) {
+      return corsResponse({ error: 'Invalid JSON in request body' }, 400);
+    }
+    
     const { name, description, code } = body;
 
     const house = await env.DB.prepare(
