@@ -3,17 +3,18 @@ name = "housing-editor"
 # Pages Build Configuration
 pages_build_output_dir = "dist"
 
-# Production Environment for Pages
-[env.production]
-vars = { VITE_API_URL = "https://housing-editor-api-production.sashain6.workers.dev", JWT_SECRET = "your-super-secret-jwt-key-change-this-in-production" }
-
-# D1 Database Configuration for the Worker
-[[env.production.d1_databases]]
+# Direct D1 Database binding for Pages
+[[d1_databases]]
 binding = "DB"
 database_name = "housing-editor"
 database_id = "16d40a18-e293-4ebc-81e7-380c736f55f0"
 
-# KV Namespace for sessions and rate limiting
-[[env.production.kv_namespaces]]
+# Direct KV Namespace binding for Pages
+[[kv_namespaces]]
 binding = "KV"
 id = "c675420dfbbe46e7937fa8043c5d9ef6"
+
+# Environment variables for Pages
+[vars]
+VITE_API_URL = "https://housing-editor.pages.dev/api"
+JWT_SECRET = "your-super-secret-jwt-key-change-this-in-production"
