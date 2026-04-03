@@ -32,6 +32,7 @@ function EditorPage() {
 
   const nodeIdRef = useRef(0);
   const houseIdRef = useRef(houseId); // Ref to store current houseId
+  const isInitialLoadRef = useRef(true); // Track initial load
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [htslCode, setHTSLCode] = useState("// Empty - Start by adding an Event node");
@@ -86,6 +87,7 @@ function EditorPage() {
             setNodes(nodeData.nodes);
             setEdges(nodeData.edges);
             setSyncMode(nodeData.syncMode || "visual");
+            isInitialLoadRef.current = false;
             return; // Skip code parsing since we have node data
           }
         } catch (error) {
@@ -94,8 +96,8 @@ function EditorPage() {
         }
       }
       
-      // Fallback: parse code to nodes if no node data or parsing failed
-      if (currentHouse.code) {
+      // Only parse code to nodes if this is the initial load and we don't have existing nodes
+      if (currentHouse.code && isInitialLoadRef.current) {
         try {
           const { nodes: parsedNodes, edges: parsedEdges } = parseHTSLToNodes(currentHouse.code);
           if (parsedNodes && parsedEdges) {
@@ -110,11 +112,13 @@ function EditorPage() {
           setEdges([]);
           setSyncMode("code");
         }
-      } else {
+        isInitialLoadRef.current = false;
+      } else if (!currentHouse.code && isInitialLoadRef.current) {
         // Empty house
         setNodes([]);
         setEdges([]);
         setSyncMode("visual");
+        isInitialLoadRef.current = false;
       }
     }
   }, [currentHouse]);
@@ -156,11 +160,13 @@ function EditorPage() {
 
   // Update HTSL code when nodes/edges change (visual editor)
   useEffect(() => {
-    const code = generateHTSL(nodes, edges);
-    setHTSLCode(code);
-    setSyncMode("visual");
-    debouncedSave(code);
-  }, [nodes, edges, debouncedSave]);
+    // Only generate code if we're not in the middle of loading or saving
+    if (!housingLoading && !isSaving && syncMode === "visual") {
+      const code = generateHTSL(nodes, edges);
+      setHTSLCode(code);
+      debouncedSave(code);
+    }
+  }, [nodes, edges, debouncedSave, housingLoading, isSaving, syncMode]);
 
   // Handle code changes from code editor
   const handleCodeChange = (newCode) => {
