@@ -3,6 +3,8 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://housing-editor.pages.dev/api";
 
+console.log("Using API URL:", API_URL);
+
 export const useAuthStore = create((set) => ({
   user: null,
   token: localStorage.getItem("auth_token") || null,
@@ -168,15 +170,18 @@ export const useHousingStore = create((set) => ({
   },
 
   updateHouse: async (houseId, updates) => {
+    console.log("Updating house:", houseId, "with updates:", Object.keys(updates));
     try {
       const response = await axios.put(`${API_URL}/houses/${houseId}`, updates);
+      console.log("Update response:", response.data);
       set((state) => ({
         currentHouse: response.data.house,
         houses: state.houses.map((h) => (h.id === houseId ? response.data.house : h)),
       }));
       return response.data;
     } catch (error) {
-      const msg = error.response?.data?.message || "Failed to update house";
+      console.error("Update house error:", error.response?.data || error.message);
+      const msg = error.response?.data?.message || error.response?.data?.error || "Failed to update house";
       set((state) => ({ error: msg }));
       throw error;
     }

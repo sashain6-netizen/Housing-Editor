@@ -91,14 +91,20 @@ function EditorPage() {
   // Auto-save to database
   const debouncedSave = useCallback(
     debounce(async (code) => {
-      if (!houseId || !code) return;
+      if (!houseId || !code) {
+        console.log("Save skipped: missing houseId or code", { houseId, code: !!code });
+        return;
+      }
 
+      console.log("Attempting to save house:", houseId);
       setIsSaving(true);
       try {
         await updateHouse(houseId, { code });
         setLastSaveTime(new Date());
+        console.log("Save successful for house:", houseId);
       } catch (error) {
         console.error("Save error:", error);
+        alert(`Failed to save: ${error.response?.data?.message || error.message}`);
       } finally {
         setIsSaving(false);
       }
