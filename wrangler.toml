@@ -1,5 +1,4 @@
 name = "housing-editor-api"
-type = "javascript"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
 
@@ -9,22 +8,22 @@ vars = { ENVIRONMENT = "development" }
 
 # Production Environment
 [env.production]
-name = "housing-editor-api-prod"
-route = "api.yourhousing.com/*"
-zone_id = "your_zone_id_here"
+name = "housing-editor-api"
+route = "housing-editor-api.pages.dev/*"
+zone_id = ""
 vars = { ENVIRONMENT = "production" }
 
 # Database Binding (D1)
 [[d1_databases]]
 binding = "DB"
 database_name = "housing-editor"
-database_id = "your_database_id_here"
+database_id = "16d40a18-e293-4ebc-81e7-380c736f55f0"
 migrations_dir = "migrations"
 
 # KV Namespace Binding (Sessions/Cache)
 [[kv_namespaces]]
 binding = "KV"
-id = "your_kv_namespace_id_here"
+id = "c675420dfbbe46e7937fa8043c5d9ef6"
 
 # Environment Variables (set these in Cloudflare dashboard)
 [vars]
