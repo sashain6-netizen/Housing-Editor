@@ -121,15 +121,14 @@ export const useHousingStore = create((set) => ({
       const response = await axios.post(`${API_URL}/houses`, {
         name,
         description,
-        code: "",
       });
       set((state) => ({
-        houses: [...state.houses, response.data],
+        houses: [...state.houses, response.data.house],
         isLoading: false,
       }));
-      return response.data;
+      return response.data.house;
     } catch (error) {
-      const msg = error.response?.data?.message || "Failed to create house";
+      const msg = error.response?.data?.error || error.response?.data?.message || "Failed to create house";
       set({ error: msg, isLoading: false });
       throw error;
     }
