@@ -10,7 +10,19 @@ import EditorPage from "./pages/EditorPage";
 
 // Access Control Route Component - prevents redirects, shows unauthorized state
 const AccessControlRoute = ({ children, requiresAuth = true }) => {
-  const { user } = useAuthStore();
+  const { user, isCheckingAuth } = useAuthStore();
+  
+  // Show loading wheel while checking authentication
+  if (requiresAuth && isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mb-4"></div>
+          <p className="text-slate-400">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
   
   if (requiresAuth && !user) {
     return (

@@ -7,6 +7,7 @@ export const useAuthStore = create((set) => ({
   user: null,
   token: localStorage.getItem("auth_token") || null,
   isLoading: false,
+  isCheckingAuth: true,
   error: null,
 
   setToken: (token) => {
@@ -74,9 +75,10 @@ export const useAuthStore = create((set) => ({
   },
 
   checkAuth: async () => {
+    set({ isCheckingAuth: true });
     const token = localStorage.getItem("auth_token");
     if (!token) {
-      set({ user: null, token: null });
+      set({ user: null, token: null, isCheckingAuth: false });
       return false;
     }
 
@@ -84,7 +86,7 @@ export const useAuthStore = create((set) => ({
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       const response = await axios.get(`${API_URL}/auth/me`);
       if (response.data && response.data.user) {
-        set({ user: response.data.user, token });
+        set({ user: response.data.user, token, isCheckingAuth: false });
         return true;
       } else {
         throw new Error("Invalid response format");
@@ -93,7 +95,7 @@ export const useAuthStore = create((set) => ({
       console.warn("Auth check failed:", error.response?.status, error.message);
       localStorage.removeItem("auth_token");
       delete axios.defaults.headers.common["Authorization"];
-      set({ user: null, token: null });
+      set({ user: null, token: null, isCheckingAuth: false });
       return false;
     }
   },
