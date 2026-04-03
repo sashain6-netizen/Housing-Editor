@@ -17,7 +17,13 @@ export function LoginPage() {
     setLocalError("");
 
     if (!formData.email || !formData.password) {
-      setLocalError("Please fill in all fields");
+      setLocalError("Please enter both your email address and password");
+      return;
+    }
+
+    // Email validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setLocalError("Please enter a valid email address (e.g., user@example.com)");
       return;
     }
 
@@ -25,7 +31,8 @@ export function LoginPage() {
       await login(formData.email, formData.password);
       navigate("/dashboard");
     } catch (err) {
-      setLocalError(err.response?.data?.message || "Login failed");
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Login failed. Please try again.";
+      setLocalError(errorMessage);
     }
   };
 
@@ -110,17 +117,35 @@ export function RegisterPage() {
     setLocalError("");
 
     if (!formData.name || !formData.email || !formData.password) {
-      setLocalError("Please fill in all fields");
+      setLocalError("Please fill in all required fields: name, email, and password");
       return;
     }
 
+    // Name validation
+    if (formData.name.trim().length < 2) {
+      setLocalError("Name must be at least 2 characters long");
+      return;
+    }
+
+    if (formData.name.trim().length > 50) {
+      setLocalError("Name cannot be longer than 50 characters");
+      return;
+    }
+
+    // Email validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setLocalError("Please enter a valid email address (e.g., user@example.com)");
+      return;
+    }
+
+    // Password validation
     if (formData.password !== formData.passwordConfirm) {
-      setLocalError("Passwords do not match");
+      setLocalError("Passwords do not match. Please make sure both passwords are identical.");
       return;
     }
 
     if (formData.password.length < 8) {
-      setLocalError("Password must be at least 8 characters");
+      setLocalError("Password must be at least 8 characters long. Include a mix of letters, numbers, and symbols for better security.");
       return;
     }
 
@@ -128,7 +153,8 @@ export function RegisterPage() {
       await register(formData.email, formData.password, formData.name);
       navigate("/dashboard");
     } catch (err) {
-      setLocalError(err.response?.data?.message || "Registration failed");
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Registration failed. Please try again.";
+      setLocalError(errorMessage);
     }
   };
 

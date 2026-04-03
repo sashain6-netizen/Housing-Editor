@@ -7,21 +7,35 @@ export async function onRequestPost(context) {
     const { email, password, name } = body;
 
     if (!email || !password || !name) {
-      return new Response(JSON.stringify({ error: 'Missing required fields: email, password, name' }), {
+      return new Response(JSON.stringify({ error: 'Please fill in all required fields: name, email, and password' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });
     }
 
     if (password.length < 8) {
-      return new Response(JSON.stringify({ error: 'Password must be at least 8 characters' }), {
+      return new Response(JSON.stringify({ error: 'Password must be at least 8 characters long' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return new Response(JSON.stringify({ error: 'Invalid email format' }), {
+      return new Response(JSON.stringify({ error: 'Please enter a valid email address (e.g., user@example.com)' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+
+    if (name.trim().length < 2) {
+      return new Response(JSON.stringify({ error: 'Name must be at least 2 characters long' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+
+    if (name.trim().length > 50) {
+      return new Response(JSON.stringify({ error: 'Name cannot be longer than 50 characters' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });
@@ -33,7 +47,7 @@ export async function onRequestPost(context) {
     ).bind(email.toLowerCase()).first();
 
     if (existing) {
-      return new Response(JSON.stringify({ error: 'Email already registered' }), {
+      return new Response(JSON.stringify({ error: 'An account with this email already exists. Try logging in or use a different email.' }), {
         status: 409,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });
@@ -70,7 +84,23 @@ export async function onRequestPost(context) {
 
   } catch (error) {
     console.error('Register error:', error);
-    return new Response(JSON.stringify({ error: 'Registration failed: ' + error.message }), {
+    
+    // Handle specific database errors
+    if (error.message.includes('UNIQUE constraint failed')) {
+      return new Response(JSON.stringify({ error: 'An account with this email already exists. Try logging in or use a different email.' }), {
+        status: 409,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+    
+    if (error.message.includes('database') || error.message.includes('SQL')) {
+      return new Response(JSON.stringify({ error: 'Database error occurred. Please try again in a few moments.' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+    
+    return new Response(JSON.stringify({ error: 'Registration failed due to a server error. Please try again.' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });

@@ -932,7 +932,7 @@ function isImportantJsComment(comment, source) {
 
 function expandJsCommentRange(source, comment) {
   let [start, end] = comment.range;
-  const lineStart = findLineStart(source, start);
+  const lineStart = findLineStart(source, start); 
   const lineEnd = findLineEnd(source, end);
   const before = source.slice(lineStart, start);
   const after = source.slice(end, lineEnd);

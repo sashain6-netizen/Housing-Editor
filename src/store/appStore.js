@@ -39,7 +39,7 @@ export const useAuthStore = create((set) => ({
       ] = `Bearer ${response.data.token}`;
       return response.data;
     } catch (error) {
-      const msg = error.response?.data?.message || "Registration failed";
+      const msg = error.response?.data?.error || error.response?.data?.message || "Registration failed";
       set({ error: msg, isLoading: false });
       throw error;
     }
@@ -63,7 +63,7 @@ export const useAuthStore = create((set) => ({
       ] = `Bearer ${response.data.token}`;
       return response.data;
     } catch (error) {
-      const msg = error.response?.data?.message || "Login failed";
+      const msg = error.response?.data?.error || error.response?.data?.message || "Login failed";
       set({ error: msg, isLoading: false });
       throw error;
     }

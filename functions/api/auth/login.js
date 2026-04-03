@@ -7,7 +7,7 @@ export async function onRequestPost(context) {
     const { email, password } = body;
 
     if (!email || !password) {
-      return new Response(JSON.stringify({ error: 'Missing email or password' }), {
+      return new Response(JSON.stringify({ error: 'Please enter both your email and password to log in.' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });
@@ -18,7 +18,7 @@ export async function onRequestPost(context) {
     ).bind(email.toLowerCase()).first();
 
     if (!user) {
-      return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
+      return new Response(JSON.stringify({ error: 'No account found with this email address. Check your email or create an account.' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });
@@ -26,7 +26,7 @@ export async function onRequestPost(context) {
 
     const passwordValid = await verifyPassword(password, user.password_hash);
     if (!passwordValid) {
-      return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
+      return new Response(JSON.stringify({ error: 'Incorrect password. Please check your password and try again.' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });
@@ -54,7 +54,23 @@ export async function onRequestPost(context) {
 
   } catch (error) {
     console.error('Login error:', error);
-    return new Response(JSON.stringify({ error: 'Login failed: ' + error.message }), {
+    
+    // Handle specific error types
+    if (error.message.includes('JSON')) {
+      return new Response(JSON.stringify({ error: 'Invalid request format. Please ensure you\'re sending valid JSON data.' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+    
+    if (error.message.includes('database') || error.message.includes('SQL')) {
+      return new Response(JSON.stringify({ error: 'Database connection error. Please try again in a few moments.' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+    
+    return new Response(JSON.stringify({ error: 'Login failed due to a server error. Please try again or contact support if the problem persists.' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
