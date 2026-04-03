@@ -38,11 +38,18 @@ export function parseHTSLToNodes(code, updateCallback) {
       const eventBody = eventMatch[2];
       const eventId = `event_${nodeIdCounter++}`;
 
-      // Create event node
+      // Create event node with proper callback
       nodes.push({
         id: eventId,
         type: "event",
-        data: { eventType, onUpdate: (data) => updateCallback && updateCallback(eventId, data) },
+        data: { 
+          eventType, 
+          onUpdate: (data) => {
+            if (updateCallback) {
+              updateCallback(eventId, data);
+            }
+          }
+        },
         position: { x: 100, y: 100 + nodes.length * 150 },
       });
 
@@ -51,7 +58,8 @@ export function parseHTSLToNodes(code, updateCallback) {
         const { bodyNodes, bodyEdges, lastNodeId } = parseEventBody(
           eventBody,
           eventId,
-          nodeIdCounter
+          nodeIdCounter,
+          updateCallback
         );
 
         if (bodyNodes && bodyEdges) {
@@ -76,7 +84,7 @@ export function parseHTSLToNodes(code, updateCallback) {
 /**
  * Parse the body of an event block
  */
-function parseEventBody(body, parentId, startNodeId) {
+function parseEventBody(body, parentId, startNodeId, updateCallback) {
   const nodes = [];
   const edges = [];
   let nodeIdCounter = startNodeId;
@@ -106,7 +114,11 @@ function parseEventBody(body, parentId, startNodeId) {
             data: {
               actionType: "SendMessage",
               message,
-              onUpdate: () => {},
+              onUpdate: (data) => {
+                if (updateCallback) {
+                  updateCallback(nodeId, data);
+                }
+              },
             },
             position: { x: 200 + (nodes.length % 3) * 150, y: 100 + Math.floor(nodes.length / 3) * 120 },
           });
@@ -125,7 +137,11 @@ function parseEventBody(body, parentId, startNodeId) {
               actionType: "GiveItem",
               itemName,
               itemCount: parseInt(count) || 1,
-              onUpdate: () => {},
+              onUpdate: (data) => {
+                if (updateCallback) {
+                  updateCallback(nodeId, data);
+                }
+              },
             },
             position: { x: 200 + (nodes.length % 3) * 150, y: 100 + Math.floor(nodes.length / 3) * 120 },
           });
@@ -145,7 +161,11 @@ function parseEventBody(body, parentId, startNodeId) {
               x: parseFloat(x) || 0,
               y: parseFloat(y) || 0,
               z: parseFloat(z) || 0,
-              onUpdate: () => {},
+              onUpdate: (data) => {
+                if (updateCallback) {
+                  updateCallback(nodeId, data);
+                }
+              },
             },
             position: { x: 200 + (nodes.length % 3) * 150, y: 100 + Math.floor(nodes.length / 3) * 120 },
           });
@@ -164,7 +184,11 @@ function parseEventBody(body, parentId, startNodeId) {
               actionType: "SetStat",
               statName,
               statValue: parseInt(value) || 0,
-              onUpdate: () => {},
+              onUpdate: (data) => {
+                if (updateCallback) {
+                  updateCallback(nodeId, data);
+                }
+              },
             },
             position: { x: 200 + (nodes.length % 3) * 150, y: 100 + Math.floor(nodes.length / 3) * 120 },
           });
@@ -182,7 +206,11 @@ function parseEventBody(body, parentId, startNodeId) {
             data: {
               actionType: "PlaySound",
               soundName: sound,
-              onUpdate: () => {},
+              onUpdate: (data) => {
+                if (updateCallback) {
+                  updateCallback(nodeId, data);
+                }
+              },
             },
             position: { x: 200 + (nodes.length % 3) * 150, y: 100 + Math.floor(nodes.length / 3) * 120 },
           });
@@ -200,7 +228,14 @@ function parseEventBody(body, parentId, startNodeId) {
           nodes.push({
             id: nodeId,
             type: "condition",
-            data: { ...conditionData, onUpdate: () => {} },
+            data: { 
+              ...conditionData, 
+              onUpdate: (data) => {
+                if (updateCallback) {
+                  updateCallback(nodeId, data);
+                }
+              }
+            },
             position: { x: 200 + (nodes.length % 3) * 150, y: 100 + Math.floor(nodes.length / 3) * 120 },
           });
 
@@ -248,7 +283,8 @@ function parseEventBody(body, parentId, startNodeId) {
               const { bodyNodes: elseNodes, bodyEdges: elseEdges, lastNodeId: elseLastId } = parseEventBody(
                 elseNodeBody,
                 nodeId,
-                nodeIdCounter
+                nodeIdCounter,
+                updateCallback
               );
               if (elseNodes && elseEdges) {
                 nodes.push(...elseNodes);
@@ -270,7 +306,8 @@ function parseEventBody(body, parentId, startNodeId) {
                 const { bodyNodes: ifNodes, bodyEdges: ifEdges, lastNodeId: ifLastId } = parseEventBody(
                   ifNodeBody,
                   nodeId,
-                  nodeIdCounter
+                  nodeIdCounter,
+                  updateCallback
                 );
                 if (ifNodes && ifEdges) {
                   nodes.push(...ifNodes);

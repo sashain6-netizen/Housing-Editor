@@ -119,6 +119,21 @@ body,
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-height: 32px;
+  line-height: 1.2;
+}
+
+.node-header span:first-child {
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.node-header span:last-child {
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .node-event .node-header {
@@ -167,23 +182,41 @@ body,
    =================================== */
 
 .react-flow__edge {
-  stroke-width: 2.5;
+  stroke-width: 3;
 }
 
 .react-flow__edge-path {
-  stroke: url(#gradient) !important;
+  stroke: #818cf8 !important;
   stroke-linecap: round;
   stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px rgba(129, 140, 248, 0.3));
 }
 
 .react-flow__edge.selected {
   stroke: #a78bfa !important;
-  filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.4));
+  stroke-width: 4;
+  filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.6));
+}
+
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: #a5b4fc !important;
+  stroke-width: 4;
+  filter: drop-shadow(0 0 6px rgba(165, 180, 252, 0.5));
 }
 
 /* Linear Edge */
 .react-flow__edge.linear {
-  stroke: rgba(129, 140, 248, 0.5);
+  stroke: rgba(129, 140, 248, 0.8);
+}
+
+/* Edge arrow markers */
+.react-flow__edge-path {
+  marker-end: url(#arrowhead);
+}
+
+.react-flow__arrow {
+  fill: #818cf8;
+  filter: drop-shadow(0 0 2px rgba(129, 140, 248, 0.4));
 }
 
 /* ===================================

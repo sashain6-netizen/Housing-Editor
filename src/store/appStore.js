@@ -28,15 +28,14 @@ export const useAuthStore = create((set) => ({
         password,
         name,
       });
+      const { user, token } = response.data;
       set({
-        user: response.data.user,
-        token: response.data.token,
+        user,
+        token,
         isLoading: false,
       });
-      localStorage.setItem("auth_token", response.data.token);
-      axios.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${response.data.token}`;
+      localStorage.setItem("auth_token", token);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       return response.data;
     } catch (error) {
       const msg = error.response?.data?.error || error.response?.data?.message || "Registration failed";
@@ -52,15 +51,14 @@ export const useAuthStore = create((set) => ({
         email,
         password,
       });
+      const { user, token } = response.data;
       set({
-        user: response.data.user,
-        token: response.data.token,
+        user,
+        token,
         isLoading: false,
       });
-      localStorage.setItem("auth_token", response.data.token);
-      axios.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${response.data.token}`;
+      localStorage.setItem("auth_token", token);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       return response.data;
     } catch (error) {
       const msg = error.response?.data?.error || error.response?.data?.message || "Login failed";

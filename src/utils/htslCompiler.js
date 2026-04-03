@@ -65,14 +65,10 @@ function traverseFromNode(nodeId, nodes, edges, visited, nodeData) {
     const eventTrigger = getEventTrigger(node.data);
     code.push(eventTrigger);
 
-    // Find outgoing connections
+    // Find outgoing connections - only follow the first valid connection
     const outgoingEdges = edges.filter((e) => e.source === nodeId);
-    const nextNodes = outgoingEdges.map((e) =>
-      nodes.find((n) => n.id === e.target)
-    );
-
-    // Process connected nodes
-    nextNodes.forEach((nextNode) => {
+    if (outgoingEdges.length > 0) {
+      const nextNode = nodes.find((n) => n.id === outgoingEdges[0].target);
       if (nextNode) {
         const childCode = traverseFromNode(
           nextNode.id,
@@ -85,18 +81,15 @@ function traverseFromNode(nodeId, nodes, edges, visited, nodeData) {
           code.push(childCode);
         }
       }
-    });
+    }
   } else if (node.type === "action") {
     const actionCode = generateActionCode(node.data);
     code.push(actionCode);
 
-    // Continue to next nodes
+    // Continue to next node - only follow the first valid connection
     const outgoingEdges = edges.filter((e) => e.source === nodeId);
-    const nextNodes = outgoingEdges.map((e) =>
-      nodes.find((n) => n.id === e.target)
-    );
-
-    nextNodes.forEach((nextNode) => {
+    if (outgoingEdges.length > 0) {
+      const nextNode = nodes.find((n) => n.id === outgoingEdges[0].target);
       if (nextNode) {
         const childCode = traverseFromNode(
           nextNode.id,
@@ -109,7 +102,7 @@ function traverseFromNode(nodeId, nodes, edges, visited, nodeData) {
           code.push(childCode);
         }
       }
-    });
+    }
   } else if (node.type === "condition") {
     const conditionCode = generateConditionCode(
       node.id,

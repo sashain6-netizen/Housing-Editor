@@ -110,17 +110,24 @@ function EditorPage() {
     setHTSLCode(newCode);
     setSyncMode("code");
     
-    try {
-      // Parse code to nodes
-      const { nodes: parsedNodes, edges: parsedEdges } = parseHTSLToNodes(newCode);
-      // Only update if parsing succeeds and returns valid nodes
-      if (parsedNodes && parsedEdges && parsedNodes.length >= 0) {
-        setNodes(parsedNodes);
-        setEdges(parsedEdges);
+    // Only try to parse if there's actual code content
+    if (newCode && newCode.trim() && !newCode.trim().startsWith('//')) {
+      try {
+        // Parse code to nodes
+        const { nodes: parsedNodes, edges: parsedEdges } = parseHTSLToNodes(newCode);
+        // Only update if parsing succeeds and returns valid nodes
+        if (parsedNodes && parsedEdges && parsedNodes.length >= 0) {
+          setNodes(parsedNodes);
+          setEdges(parsedEdges);
+        }
+      } catch (error) {
+        console.error("Parse error:", error);
+        // Keep existing nodes if parsing fails - don't clear them
       }
-    } catch (error) {
-      console.error("Parse error:", error);
-      // Keep existing nodes if parsing fails
+    } else if (newCode.trim() === '' || newCode.trim().startsWith('//')) {
+      // Only clear nodes if the code is actually empty or just comments
+      setNodes([]);
+      setEdges([]);
     }
 
     debouncedSave(newCode);
@@ -178,16 +185,28 @@ function EditorPage() {
         nodeData.compareValue = 10;
       }
 
+      // Calculate better positioning
+      const baseX = 100;
+      const baseY = 100;
+      const xOffset = 250;
+      const yOffset = 150;
+      
+      const existingNodesOfType = nodes.filter(n => n.type === type).length;
+      const position = { 
+        x: baseX + (existingNodesOfType * xOffset), 
+        y: baseY + (existingNodesOfType % 3) * yOffset 
+      };
+
       const newNode = {
         id: newNodeId,
         data: nodeData,
-        position: { x: Math.random() * 500, y: Math.random() * 300 },
+        position,
         type: type,
       };
 
       setNodes((nds) => [...nds, newNode]);
     },
-    [setNodes]
+    [setNodes, nodes]
   );
 
   const updateNodeData = useCallback(
@@ -350,6 +369,13 @@ const handleBackToDashboard = () => {
             onConnect={onConnect}
             nodeTypes={nodeTypes}
             fitView
+            connectionLineStyle={{ stroke: '#818cf8', strokeWidth: 3 }}
+            connectionLineType="smoothstep"
+            defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+            minZoom={0.1}
+            maxZoom={2}
+            snapToGrid={true}
+            snapGrid={[20, 20]}
             isValidConnection={(connection) => {
               const sourceNode = nodes.find(n => n.id === connection.source);
               const targetNode = nodes.find(n => n.id === connection.target);
