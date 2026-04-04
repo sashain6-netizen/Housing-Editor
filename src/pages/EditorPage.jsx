@@ -123,78 +123,79 @@ function EditorPage() {
     }
   }, [currentHouse]);
 
-  // Auto-save to database
+  // Use refs to capture latest state values without recreating function
+  const nodesRef = useRef(nodes);
+  const edgesRef = useRef(edges);
+  const syncModeRef = useRef(syncMode);
+  
+  useEffect(() => {
+    nodesRef.current = nodes;
+  }, [nodes]);
+  
+  useEffect(() => {
+    edgesRef.current = edges;
+  }, [edges]);
+  
+  useEffect(() => {
+    syncModeRef.current = syncMode;
+  }, [syncMode]);
+
+  // Auto-save to database with proper state capture
   const debouncedSave = useCallback(
     debounce(async (code) => {
-      const currentHouseId = houseIdRef.current; // Get current value from ref
-      if (!currentHouseId) {
-        console.log("Save skipped: missing houseId", { houseId: currentHouseId });
-        return;
-      }
+      const currentHouseId = houseIdRef.current;
+      if (!currentHouseId) return;
 
-      // Create node data structure
       const nodeData = {
-        nodes: nodes,
-        edges: edges,
-        syncMode: syncMode
+        nodes: nodesRef.current,
+        edges: edgesRef.current,
+        syncMode: syncModeRef.current,
+        timestamp: Date.now()
       };
 
-      console.log("Attempting to save house:", currentHouseId, "with code length:", code?.length || 0, "nodes:", nodes.length, "edges:", edges.length);
       setIsSaving(true);
       try {
-        await updateHouse(currentHouseId, { 
-          code: code || "", 
+        await updateHouse(currentHouseId, {
+          code: code || "",
           node_data: JSON.stringify(nodeData)
         });
         setLastSaveTime(new Date());
-        console.log("Save successful for house:", currentHouseId);
       } catch (error) {
         console.error("Save error:", error);
-        alert(`Failed to save: ${error.response?.data?.message || error.message}`);
       } finally {
         setIsSaving(false);
       }
-    }, 2000),
-    [updateHouse, nodes, edges, syncMode]
+    }, 1500),
+    [updateHouse]
   );
 
   // Update HTSL code when nodes/edges change (visual editor)
   useEffect(() => {
-    // Only generate code if we're not in the middle of loading or saving
-    if (!housingLoading && !isSaving && syncMode === "visual") {
+    if (!housingLoading && syncMode === "visual" && nodes.length > 0) {
       const code = generateHTSL(nodes, edges);
       setHTSLCode(code);
       debouncedSave(code);
     }
-  }, [nodes, edges, debouncedSave, housingLoading, isSaving, syncMode]);
+  }, [nodes, edges, debouncedSave, housingLoading, syncMode]);
 
-  // Handle code changes from code editor
+  // Handle code changes from code editor (improved)
   const handleCodeChange = (newCode) => {
     setHTSLCode(newCode);
     setSyncMode("code");
     
-    // Only try to parse if there's actual code content
-    if (newCode && newCode.trim() && !newCode.trim().startsWith('//')) {
+    const trimmed = newCode.trim();
+    if (trimmed && !trimmed.startsWith('//')) {
       try {
-        // Parse code to nodes
         const { nodes: parsedNodes, edges: parsedEdges } = parseHTSLToNodes(newCode);
-        // Only update if parsing succeeds and returns valid nodes
-        if (parsedNodes && parsedEdges && parsedNodes.length >= 0) {
+        if (parsedNodes && Array.isArray(parsedNodes) && parsedNodes.length > 0) {
           setNodes(parsedNodes);
-          setEdges(parsedEdges);
+          setEdges(parsedEdges || []);
+          debouncedSave(newCode);
         }
       } catch (error) {
         console.error("Parse error:", error);
-        // Keep existing nodes if parsing fails - don't clear them
       }
-    } else if (newCode.trim() === '' || newCode.trim().startsWith('//')) {
-      // Only clear nodes if the code is actually empty or just comments
-      setNodes([]);
-      setEdges([]);
     }
-
-    // Save with current node structure and new code
-    debouncedSave(newCode);
   };
 
   const onConnect = useCallback(

@@ -47,15 +47,16 @@ body,
 
 /* Node Base Styling */
 .react-flow__node {
-  border-radius: 8px;
+  border-radius: 10px;
   border: 2px solid rgba(100, 116, 139, 0.3);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  transition: all 0.2s ease;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   background: rgba(30, 41, 59, 0.95);
   backdrop-filter: blur(10px);
-  min-width: 200px;
-  max-width: 300px;
-  overflow: hidden;
+  min-width: 220px;
+  max-width: 320px;
+  overflow: visible;
+  pointer-events: auto;
 }
 
 .react-flow__node:hover {
@@ -107,25 +108,27 @@ body,
    =================================== */
 
 .node-header {
-  padding: 8px 12px;
-  border-bottom: 1px solid rgba(100, 116, 139, 0.3);
-  font-size: 12px;
-  font-weight: 600;
+  padding: 12px 14px;
+  border-bottom: 2px solid rgba(100, 116, 139, 0.4);
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 32px;
+  min-height: 40px;
   line-height: 1.2;
 }
 
 .node-header span:first-child {
   flex-shrink: 0;
-  margin-right: 8px;
+  font-size: 13px;
+  min-width: fit-content;
 }
 
 .node-header span:last-child {
@@ -134,6 +137,8 @@ body,
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+  font-size: 10px;
+  opacity: 0.85;
 }
 
 .node-event .node-header {
